@@ -28,6 +28,13 @@ export async function proxy(req: NextRequest) {
     if (AREAS[area] !== session.role) return NextResponse.redirect(new URL(homeForRole(session.role), req.url));
   }
 
+  // Exam workspace: any signed-in user (ownership of the attempt is checked server-side).
+  if (pathname.startsWith("/attempt/") && !session) {
+    const url = new URL("/login", req.url);
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
+
   if ((pathname === "/login" || pathname === "/") && session) {
     return NextResponse.redirect(new URL(homeForRole(session.role), req.url));
   }
@@ -35,5 +42,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/admin/:path*", "/examiner/:path*", "/candidate/:path*"],
+  matcher: ["/", "/login", "/admin/:path*", "/examiner/:path*", "/candidate/:path*", "/attempt/:path*"],
 };

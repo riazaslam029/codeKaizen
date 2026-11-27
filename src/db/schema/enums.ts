@@ -35,7 +35,15 @@ export const incidentType = pgEnum("incident_type", [
   "MULTIPLE_SESSIONS",
   "NETWORK_LOSS",
   "OTHER",
+  "RECONNECTED",
+  "SYNC_FAILED",
+  "DUPLICATE_SUBMISSION",
+  "ATTEMPT_RESUMED",
+  "LATE_ANSWER_REJECTED",
+  "AUTO_SUBMITTED",
 ]);
+
+export const multiScoring = pgEnum("multi_scoring", ["ALL_OR_NOTHING", "PARTIAL"]);
 
 export const incidentSeverity = pgEnum("incident_severity", ["LOW", "MEDIUM", "HIGH"]);
 
@@ -45,3 +53,5 @@ export type UserRole = (typeof userRole.enumValues)[number];
 export type QuestionType = (typeof questionType.enumValues)[number];
 export type ExamStatus = (typeof examStatus.enumValues)[number];
 export type AttemptStatus = (typeof attemptStatus.enumValues)[number];
+export type IncidentType = (typeof incidentType.enumValues)[number];
+export type MultiScoring = (typeof multiScoring.enumValues)[number];

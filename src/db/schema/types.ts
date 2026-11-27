@@ -1,4 +1,4 @@
-import type { QuestionType } from "./enums";
+import type { MultiScoring, QuestionType } from "./enums";
 
 export type QuestionOption = { id: string; text: string };
 
@@ -23,4 +23,23 @@ export type AttemptQuestionSnapshot = {
   correctAnswer: CorrectAnswer | null;
   marks: number;
   negativeMarks: number;
+  multiScoring: MultiScoring;
 };
+
+export type WorkspacePreferences = {
+  fontSize: "sm" | "md" | "lg" | "xl";
+  showNavigator: boolean;
+  layout: "split" | "focus";
+  theme: "light" | "dark" | "contrast";
+};
+
+export const DEFAULT_PREFERENCES: WorkspacePreferences = {
+  fontSize: "md",
+  showNavigator: true,
+  layout: "split",
+  theme: "light",
+};
+
+export type ScratchStroke = { points: [number, number][]; width: number; erase?: boolean };
+export type ScratchPage = { id: string; title: string; notes: string; strokes: ScratchStroke[] };
+export type ScratchpadData = { pages: ScratchPage[] };

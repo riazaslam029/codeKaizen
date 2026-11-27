@@ -22,11 +22,19 @@ import {
   examStatus,
   incidentSeverity,
   incidentType,
+  multiScoring,
   questionType,
   resultStatus,
   userRole,
 } from "./enums";
-import type { AnswerResponse, AttemptQuestionSnapshot, CorrectAnswer, QuestionOption } from "./types";
+import type {
+  AnswerResponse,
+  AttemptQuestionSnapshot,
+  CorrectAnswer,
+  QuestionOption,
+  ScratchpadData,
+  WorkspacePreferences,
+} from "./types";
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -77,6 +85,7 @@ export const exams = pgTable(
     passPercentage: integer("pass_percentage").notNull().default(50),
     maxAttempts: integer("max_attempts").notNull().default(1),
     shuffleQuestions: boolean("shuffle_questions").notNull().default(false),
+    shuffleOptions: boolean("shuffle_options").notNull().default(false),
     ...timestamps,
   },
   (t) => [
@@ -105,6 +114,9 @@ export const questions = pgTable(
     correctAnswer: jsonb("correct_answer").$type<CorrectAnswer>(),
     explanation: text("explanation"),
     subject: varchar("subject", { length: 80 }),
+    topic: varchar("topic", { length: 80 }),
+    /** How MCQ_MULTI is marked: exact match, or proportional credit with penalties for wrong picks. */
+    multiScoring: multiScoring("multi_scoring").notNull().default("ALL_OR_NOTHING"),
     difficulty: difficulty("difficulty").notNull().default("MEDIUM"),
     defaultMarks: marks("default_marks").notNull().default(1),
     negativeMarks: marks("negative_marks").notNull().default(0),
@@ -175,9 +187,10 @@ export const attempts = pgTable(
     candidateId: uuid("candidate_id")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
-    enrollmentId: uuid("enrollment_id")
-      .notNull()
-      .references(() => enrollments.id, { onDelete: "restrict" }),
+    /** Null only for sandbox (examiner preview) attempts. */
+    enrollmentId: uuid("enrollment_id").references(() => enrollments.id, { onDelete: "restrict" }),
+    /** Examiner preview attempt: excluded from results, statistics and analytics. */
+    isSandbox: boolean("is_sandbox").notNull().default(false),
     attemptNumber: integer("attempt_number").notNull().default(1),
     status: attemptStatus("status").notNull().default("IN_PROGRESS"),
     /**
@@ -189,10 +202,18 @@ export const attempts = pgTable(
     startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    /** Last time the server heard from the candidate's browser (save, poll or event). */
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+    /** Random id of the browser tab that last loaded the attempt; a change means a refresh/recovery. */
+    clientSessionId: varchar("client_session_id", { length: 64 }),
     ...timestamps,
   },
   (t) => [
     uniqueIndex("attempts_exam_candidate_number_uq").on(t.examId, t.candidateId, t.attemptNumber),
+    // At most one open attempt per candidate per exam — blocks double-start races at the DB level.
+    uniqueIndex("attempts_one_open_uq")
+      .on(t.examId, t.candidateId)
+      .where(sql`${t.status} = 'IN_PROGRESS'`),
     index("attempts_candidate_idx").on(t.candidateId),
     index("attempts_exam_status_idx").on(t.examId, t.status),
     check("attempts_expiry_after_start", sql`${t.expiresAt} > ${t.startedAt}`),
@@ -212,6 +233,8 @@ export const answers = pgTable(
       .references(() => questions.id, { onDelete: "restrict" }),
     response: jsonb("response").$type<AnswerResponse>(),
     isFlagged: boolean("is_flagged").notNull().default(false),
+    /** Client-side save counter; a save is applied only if its revision is newer (idempotent retries). */
+    revision: integer("revision").notNull().default(0),
     isCorrect: boolean("is_correct"),
     marksAwarded: marks("marks_awarded"),
     feedback: text("feedback"),
@@ -243,6 +266,8 @@ export const results = pgTable(
     passed: boolean("passed").notNull(),
     status: resultStatus("status").notNull().default("PROVISIONAL"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
+    /** Public, unguessable id printed on the PDF report; assigned at publication. */
+    verificationCode: varchar("verification_code", { length: 24 }).unique(),
     gradedById: uuid("graded_by_id").references(() => users.id, { onDelete: "set null" }),
     ...timestamps,
   },
@@ -329,4 +354,37 @@ export const disputes = pgTable(
     index("disputes_candidate_idx").on(t.candidateId),
     index("disputes_status_idx").on(t.status),
   ],
+);
+
+/* ───────────────────────── workspace preferences ───────────────────────── */
+export const userPreferences = pgTable("user_preferences", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  preferences: jsonb("preferences").$type<WorkspacePreferences>().notNull(),
+  ...timestamps,
+});
+
+/* ───────────────────────── scratchpads (separate from answers) ───────────────────────── */
+export const scratchpads = pgTable("scratchpads", {
+  attemptId: uuid("attempt_id")
+    .primaryKey()
+    .references(() => attempts.id, { onDelete: "cascade" }),
+  data: jsonb("data").$type<ScratchpadData>().notNull(),
+  ...timestamps,
+});
+
+/* ───────────────────────── audit log (platform activity) ───────────────────────── */
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+    action: varchar("action", { length: 64 }).notNull(),
+    entityType: varchar("entity_type", { length: 32 }),
+    entityId: uuid("entity_id"),
+    summary: text("summary"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("audit_logs_created_idx").on(t.createdAt), index("audit_logs_actor_idx").on(t.actorId)],
 );

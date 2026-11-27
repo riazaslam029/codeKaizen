@@ -1,6 +1,22 @@
 "use client";
 
-import { BookOpenCheck, ClipboardList, LayoutDashboard, Users, type LucideIcon } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  BookOpenCheck,
+  ClipboardList,
+  FileText,
+  LayoutDashboard,
+  Library,
+  MonitorDot,
+  PenLine,
+  Settings2,
+  ShieldCheck,
+  Trophy,
+  UserRoundCheck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -9,8 +25,18 @@ import type { NavIcon, NavItem } from "./nav-config";
 const ICONS: Record<NavIcon, LucideIcon> = {
   overview: LayoutDashboard,
   users: Users,
+  roles: ShieldCheck,
+  activity: Activity,
   exams: BookOpenCheck,
+  bank: Library,
+  candidates: UserRoundCheck,
+  monitor: MonitorDot,
+  grading: PenLine,
+  results: Trophy,
+  analytics: BarChart3,
+  reports: FileText,
   enrollments: ClipboardList,
+  preferences: Settings2,
 };
 
 export function SidebarNav({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
