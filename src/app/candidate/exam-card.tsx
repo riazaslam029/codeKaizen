@@ -5,7 +5,7 @@ import { StartAttemptButton } from "@/components/shared/start-attempt-button";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { formatDuration } from "@/lib/format";
+import { formatDuration, serverClock } from "@/lib/format";
 import type { ExamService } from "@/services/exams/exam.service";
 
 export type CandidateExam = Awaited<ReturnType<typeof ExamService.listForCandidate>>[number];
@@ -42,6 +42,11 @@ export function ExamCard({ e }: { e: CandidateExam }) {
           </div>
         </dl>
       </CardContent>
+      {e.openAttemptId && e.latestAttempt && (
+        <p className="mx-6 -mt-1 rounded-md bg-success/10 px-3 py-2 text-sm text-success" role="status">
+          In progress · about {Math.max(0, Math.ceil((new Date(e.latestAttempt.expiresAt).getTime() - serverClock()) / 60_000))} min left on the server clock
+        </p>
+      )}
       <CardFooter className="mt-auto">
         {e.canStart ? (
           <StartAttemptButton examId={e.id} resume={!!e.openAttemptId} />

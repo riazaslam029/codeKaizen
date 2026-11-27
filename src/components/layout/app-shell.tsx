@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/dal";
 import { Brand } from "./brand";
 import { MobileNav } from "./mobile-nav";
 import { NAV, ROLE_LABEL } from "./nav-config";
+import { SessionGuard } from "./session-guard";
 import { SidebarNav } from "./sidebar-nav";
 import { UserMenu } from "./user-menu";
 
@@ -16,6 +17,7 @@ export function AppShell({ role, children }: { role: UserRole; children: ReactNo
   const nav = NAV[role];
   return (
     <div className="flex min-h-dvh">
+      <SessionGuard />
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
         <div className="flex h-16 items-center border-b border-sidebar-border px-5">
           <Brand inverted />

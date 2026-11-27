@@ -14,8 +14,8 @@ function secretKey(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export async function signSession(payload: { userId: string; role: UserRole }): Promise<string> {
-  return new SignJWT({ role: payload.role })
+export async function signSession(payload: { userId: string; role: UserRole; ver?: number }): Promise<string> {
+  return new SignJWT({ role: payload.role, ver: payload.ver ?? 0 })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.userId)
     .setIssuedAt()
@@ -26,8 +26,8 @@ export async function signSession(payload: { userId: string; role: UserRole }): 
 }
 
 /** Creates the session cookie. HTTP-only, SameSite=Lax, Secure in production. */
-export async function createSession(userId: string, role: UserRole): Promise<void> {
-  const token = await signSession({ userId, role });
+export async function createSession(userId: string, role: UserRole, ver: number): Promise<void> {
+  const token = await signSession({ userId, role, ver });
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

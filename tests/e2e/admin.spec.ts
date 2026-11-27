@@ -31,14 +31,16 @@ test("administrator journey: dashboard → create user → assign role → deact
   await expect(page.getByText("Role updated")).toBeVisible();
 
   await page.setViewportSize({ width: 1280, height: 800 });
-  await row.getByRole("switch", { name: /Deactivate Created By Admin/ }).click();
-  await expect(page.getByText("Account deactivated")).toBeVisible();
+  await row.getByRole("button", { name: /Restrict Created By Admin/ }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Restrict access" }).click();
+  await expect(page.getByText(/Account restricted/)).toBeVisible();
+  await expect(row).toContainText("Restricted");
 
   // The admin's own row cannot be demoted or deactivated
   await page.getByPlaceholder("Search name or email").fill(w.users.admin.email);
   const self = page.getByRole("row", { name: /Avery Admin/ });
   await expect(self.getByRole("combobox")).toHaveCount(0);
-  await expect(self.getByRole("switch")).toBeDisabled();
+  await expect(self.getByRole("button", { name: /Restrict/ })).toHaveCount(0);
 
   await page.getByRole("link", { name: "Platform activity" }).click();
   await expect(page.getByText("Avery Admin created examiner Created By Admin").or(page.getByText("Avery Admin created candidate Created By Admin"))).toBeVisible();

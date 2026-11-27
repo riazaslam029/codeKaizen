@@ -31,6 +31,9 @@ const TONES: Record<string, string> = {
   LOW: "bg-muted text-muted-foreground",
   MEDIUM: "bg-warning/15 text-[oklch(0.45_0.12_70)]",
   HIGH: "bg-destructive/10 text-destructive",
+  // accounts
+  ACTIVE_ACCOUNT: "bg-success/12 text-success",
+  RESTRICTED: "bg-destructive/10 text-destructive",
   // roles
   ADMIN: "bg-foreground text-background",
   EXAMINER: "bg-accent text-accent-foreground",
@@ -44,6 +47,7 @@ const LABELS: Record<string, string> = {
   NOT_STARTED: "Not started",
   PROVISIONAL: "Unpublished",
   FAIL: "Not passed",
+  ACTIVE_ACCOUNT: "Active",
 };
 
 export function StatusBadge({ value, className }: { value: string; className?: string }) {

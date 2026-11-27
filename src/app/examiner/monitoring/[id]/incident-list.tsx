@@ -9,6 +9,8 @@ const LABEL: Record<string, string> = {
   ATTEMPT_RESUMED: "Workspace reloaded / recovered",
   LATE_ANSWER_REJECTED: "Answers after deadline rejected",
   AUTO_SUBMITTED: "Auto-submitted at deadline",
+  ACCESS_RESTRICTED: "Access restricted by administrator",
+  ACCESS_RESTORED: "Access restored by administrator",
   TAB_SWITCH: "Tab switch",
   FULLSCREEN_EXIT: "Left full screen",
   COPY_PASTE: "Copy / paste",
@@ -22,6 +24,7 @@ function describe(details: Record<string, unknown> | null) {
   if (typeof details.offlineSeconds === "number") parts.push(`offline ${details.offlineSeconds}s`);
   if (typeof details.failures === "number") parts.push(`${details.failures} failed attempts`);
   if (typeof details.count === "number") parts.push(`${details.count} answer(s)`);
+  if (typeof details.by === "string") parts.push(`by ${details.by}`);
   if (typeof details.note === "string") parts.push(details.note);
   if (details.source === "browser") parts.push("reported by browser");
   return parts.join(" · ");

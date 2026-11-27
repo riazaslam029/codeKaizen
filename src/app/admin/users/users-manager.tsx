@@ -1,9 +1,10 @@
 "use client";
 
-import { Loader2, Plus, Search, UserRoundPen } from "lucide-react";
+import { Loader2, Plus, Search, ShieldCheck, ShieldOff, UserRoundPen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition, type FormEvent } from "react";
 import { toast } from "sonner";
+import { ActionButton } from "@/components/shared/action-button";
 import { Field } from "@/components/shared/field";
 import { LocalTime } from "@/components/shared/local-time";
 import { Pagination, usePagination } from "@/components/shared/pagination";
@@ -13,7 +14,6 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { changeRoleAction, createUserAction, setActiveAction, updateUserAction } from "./actions";
 
@@ -79,7 +79,7 @@ export function UsersManager({ users, currentUserId }: { users: U[]; currentUser
             <TableRow className="bg-muted/50 hover:bg-muted/50">
               <TableHead className="pl-5">Name</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead className="hidden md:table-cell">Active</TableHead>
+              <TableHead>Access</TableHead>
               <TableHead className="hidden lg:table-cell">Last sign-in</TableHead>
               <TableHead className="pr-5 text-right">
                 <span className="sr-only">Actions</span>
@@ -120,13 +120,32 @@ export function UsersManager({ users, currentUserId }: { users: U[]; currentUser
                       </Select>
                     )}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Switch
-                      checked={u.isActive}
-                      disabled={self || pending}
-                      onCheckedChange={(v) => act(() => setActiveAction(u.id, v))}
-                      aria-label={`${u.isActive ? "Deactivate" : "Activate"} ${u.name}`}
-                    />
+                  <TableCell>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusBadge value={u.isActive ? "ACTIVE_ACCOUNT" : "RESTRICTED"} />
+                      {!self && (
+                        <ActionButton
+                          variant="ghost"
+                          size="sm"
+                          action={() => setActiveAction(u.id, !u.isActive)}
+                          aria-label={`${u.isActive ? "Restrict" : "Restore access for"} ${u.name}`}
+                          confirm={
+                            u.isActive
+                              ? {
+                                  title: `Restrict ${u.name}?`,
+                                  description:
+                                    "They are signed out immediately and cannot sign in until you restore access. Any exam in progress is preserved and its timer keeps running.",
+                                  confirmLabel: "Restrict access",
+                                  destructive: true,
+                                }
+                              : { title: `Restore access for ${u.name}?`, description: "They can sign in again. Exams in progress can be resumed until their original deadline.", confirmLabel: "Restore access" }
+                          }
+                        >
+                          {u.isActive ? <ShieldOff className="size-4" aria-hidden /> : <ShieldCheck className="size-4" aria-hidden />}
+                          {u.isActive ? "Restrict" : "Restore"}
+                        </ActionButton>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="tabular hidden text-sm text-muted-foreground lg:table-cell">
                     {u.lastLoginAt ? <LocalTime value={u.lastLoginAt} /> : "Never"}

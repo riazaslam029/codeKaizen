@@ -41,6 +41,8 @@ export const incidentType = pgEnum("incident_type", [
   "ATTEMPT_RESUMED",
   "LATE_ANSWER_REJECTED",
   "AUTO_SUBMITTED",
+  "ACCESS_RESTRICTED",
+  "ACCESS_RESTORED",
 ]);
 
 export const multiScoring = pgEnum("multi_scoring", ["ALL_OR_NOTHING", "PARTIAL"]);

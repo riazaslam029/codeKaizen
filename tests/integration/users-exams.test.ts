@@ -28,13 +28,15 @@ const status = async (p: Promise<unknown>) => {
 
 describe("authentication against the database", () => {
   it("valid credentials (email case-insensitive) return the user without a hash", async () => {
-    const u = await UserService.authenticate(w.users.c1.email.toUpperCase(), PASSWORD);
-    expect(u).toMatchObject({ id: w.users.c1.id, role: "CANDIDATE" });
-    expect(u).not.toHaveProperty("passwordHash");
+    const r = await UserService.authenticate(w.users.c1.email.toUpperCase(), PASSWORD);
+    expect(r.status).toBe("ok");
+    if (r.status !== "ok") return;
+    expect(r.user).toMatchObject({ id: w.users.c1.id, role: "CANDIDATE" });
+    expect(r.user).not.toHaveProperty("passwordHash");
   });
   it("wrong password and unknown email both return null", async () => {
-    expect(await UserService.authenticate(w.users.c1.email, "wrong-password")).toBeNull();
-    expect(await UserService.authenticate(`nobody-${w.run}@it.test`, PASSWORD)).toBeNull();
+    expect(await UserService.authenticate(w.users.c1.email, "wrong-password")).toEqual({ status: "invalid" });
+    expect(await UserService.authenticate(`nobody-${w.run}@it.test`, PASSWORD)).toEqual({ status: "invalid" });
   });
   it("records last sign-in time", async () => {
     const [row] = await db.select({ t: users.lastLoginAt }).from(users).where(eq(users.id, w.users.c1.id));
@@ -61,16 +63,34 @@ describe("user administration", () => {
     expect((await UserService.changeRole(w.users.admin, w.users.c3.id, "EXAMINER")).role).toBe("EXAMINER");
     await UserService.changeRole(w.users.admin, w.users.c3.id, "CANDIDATE");
   });
-  it("deactivation blocks sign-in; admins cannot deactivate themselves", async () => {
+  it("restriction: correct password → 'restricted', wrong password → 'invalid' (no enumeration); restore works", async () => {
     expect(await status(UserService.setActive(w.users.admin, w.users.admin.id, false))).toBe(403);
     await UserService.setActive(w.users.admin, w.users.c3.id, false);
-    expect(await UserService.authenticate(w.users.c3.email, PASSWORD)).toBeNull();
+    expect((await UserService.authenticate(w.users.c3.email, PASSWORD)).status).toBe("restricted");
+    expect((await UserService.authenticate(w.users.c3.email, "wrong-password")).status).toBe("invalid");
     await UserService.setActive(w.users.admin, w.users.c3.id, true);
-    expect(await UserService.authenticate(w.users.c3.email, PASSWORD)).not.toBeNull();
+    expect((await UserService.authenticate(w.users.c3.email, PASSWORD)).status).toBe("ok");
+  });
+  it("restriction and role changes invalidate existing sessions (session_version bump)", async () => {
+    const v = async () => (await db.select({ v: users.sessionVersion }).from(users).where(eq(users.id, w.users.c3.id)))[0]!.v;
+    const before = await v();
+    await UserService.setActive(w.users.admin, w.users.c3.id, false);
+    await UserService.setActive(w.users.admin, w.users.c3.id, true);
+    expect(await v()).toBe(before + 1);
+    await UserService.changeRole(w.users.admin, w.users.c3.id, "EXAMINER");
+    await UserService.changeRole(w.users.admin, w.users.c3.id, "CANDIDATE");
+    expect(await v()).toBe(before + 3);
+  });
+  it("the last active administrator can be neither restricted nor demoted", async () => {
+    const other = await UserService.create(w.users.admin, { name: "Second Admin", email: `it-${w.run}-admin2@it.test`, role: "ADMIN", password: "Strong-Pass-9" });
+    const actor2 = { id: other.id, email: other.email, name: other.name, role: "ADMIN" as const };
+    await UserService.setActive(actor2, w.users.admin.id, false); // allowed: another active admin (actor2) remains
+    await UserService.setActive(actor2, w.users.admin.id, true);
+    expect(await status(UserService.setActive(actor2, actor2.id, false))).toBe(403); // never self
   });
   it("updating a user can reset the password", async () => {
     await UserService.update(w.users.admin, w.users.c3.id, { name: "Eve Renamed", email: w.users.c3.email, password: "Brand-New-Pass-2" });
-    expect(await UserService.authenticate(w.users.c3.email, "Brand-New-Pass-2")).not.toBeNull();
+    expect((await UserService.authenticate(w.users.c3.email, "Brand-New-Pass-2")).status).toBe("ok");
     await UserService.update(w.users.admin, w.users.c3.id, { name: "Eve Candidate", email: w.users.c3.email, password: PASSWORD });
   });
 });
@@ -171,5 +191,23 @@ describe("archive and delete", () => {
     expect((await ExamService.getForExaminer(w.users.ex1, id)).attemptCount).toBe(1);
     expect(await status(ExamService.archive(w.users.ex1, id))).toBe(409);
     expect(await status(ExamService.archive(w.users.ex2, id))).toBe(404);
+  });
+});
+
+describe("restriction while an attempt is in progress", () => {
+  it("preserves the attempt, refuses nothing server-side by itself, records timeline events, keeps the deadline", async () => {
+    const examId = await createOpenExam(w);
+    const { attemptId } = await AttemptService.start(w.users.c2, examId, { sandbox: false });
+    await AttemptService.saveAnswers(w.users.c2, attemptId, { answers: [{ questionId: w.questions.short.id, response: { text: "Paris" }, flagged: false, revision: 1 }] });
+    const { attempts, incidents, answers } = await import("@/db/schema");
+    const [before] = await db.select().from(attempts).where(eq(attempts.id, attemptId));
+    await UserService.setActive(w.users.admin, w.users.c2.id, false);
+    await UserService.setActive(w.users.admin, w.users.c2.id, true);
+    const [after] = await db.select().from(attempts).where(eq(attempts.id, attemptId));
+    expect(after!.status).toBe("IN_PROGRESS");
+    expect(after!.expiresAt.getTime()).toBe(before!.expiresAt.getTime());
+    expect((await db.select().from(answers).where(eq(answers.attemptId, attemptId)))[0]!.response).toEqual({ text: "Paris" });
+    const types = (await db.select().from(incidents).where(eq(incidents.attemptId, attemptId))).map((i) => i.type);
+    expect(types).toEqual(expect.arrayContaining(["ACCESS_RESTRICTED", "ACCESS_RESTORED"]));
   });
 });

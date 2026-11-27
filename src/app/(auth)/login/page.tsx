@@ -7,6 +7,20 @@ import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Sign in" };
 
+/**
+ * Demo quick-fill buttons appear only when DEMO_LOGIN_PASSWORD is configured for this deployment
+ * (e.g. during judging). Leave it unset to hide demo credentials entirely.
+ */
+function demoAccounts() {
+  const password = process.env.DEMO_LOGIN_PASSWORD;
+  if (!password) return undefined;
+  return [
+    { label: "Admin", email: "admin@codekaizen.test", password },
+    { label: "Examiner", email: "d.reyes@codekaizen.test", password },
+    { label: "Candidate", email: "lena.fischer@codekaizen.test", password },
+  ];
+}
+
 export default function LoginPage() {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
@@ -30,7 +44,7 @@ export default function LoginPage() {
             {[
               { icon: ShieldCheck, text: "Server-enforced roles for administrators, examiners and candidates" },
               { icon: LockKeyhole, text: "Answer keys never leave the server during an attempt" },
-              { icon: Timer, text: "Time-boxed attempts with proctoring incident logs" },
+              { icon: Timer, text: "Failure-resilient exams: answers survive outages and refreshes, and the server-kept timer never grants extra time" },
             ].map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-start gap-3">
                 <Icon className="mt-0.5 size-4 shrink-0 text-sidebar-primary" aria-hidden />
@@ -48,7 +62,7 @@ export default function LoginPage() {
           <h2 className="text-2xl font-semibold">Sign in</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">Use the account issued by your institution.</p>
           <Suspense>
-            <LoginForm />
+            <LoginForm demo={demoAccounts()} />
           </Suspense>
           <p className="mt-8 border-t pt-5 text-sm text-muted-foreground">
             Checking a result report?{" "}

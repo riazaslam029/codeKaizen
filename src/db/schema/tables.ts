@@ -56,6 +56,8 @@ export const users = pgTable(
     passwordHash: text("password_hash").notNull(),
     role: userRole("role").notNull().default("CANDIDATE"),
     isActive: boolean("is_active").notNull().default(true),
+    /** Bumped on restriction or role change: every session token carrying an older version stops working. */
+    sessionVersion: integer("session_version").notNull().default(0),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     ...timestamps,
   },

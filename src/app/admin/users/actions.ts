@@ -37,5 +37,5 @@ export async function setActiveAction(id: string, active: boolean): Promise<Acti
     const actor = await authorize("ADMIN");
     await UserService.setActive(actor, z.uuid().parse(id), z.boolean().parse(active));
     return null;
-  }, active ? "Account activated" : "Account deactivated");
+  }, active ? "Access restored" : "Account restricted — user signed out");
 }

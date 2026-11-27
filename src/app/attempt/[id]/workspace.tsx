@@ -11,6 +11,7 @@ import {
   FlaskConical,
   Loader2,
   Megaphone,
+  LogOut,
   NotebookPen,
   PanelLeftClose,
   PanelLeftOpen,
@@ -22,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { Brand } from "@/components/layout/brand";
@@ -156,6 +158,17 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
   const [reviewOpen, setReviewOpen] = useState(false);
   const [scratchOpen, setScratchOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [exitOpen, setExitOpen] = useState(false);
+  const [exiting, setExiting] = useState(false);
+  const router = useRouter();
+
+  /** Save & exit: flush, then leave. The attempt stays IN_PROGRESS and the server timer keeps running. */
+  const saveAndExit = async () => {
+    setExiting(true);
+    const flushed = await sync.flush();
+    if (!flushed) toast.warning("Some answers could not reach the server yet. They are kept on this device and sync when you return here.");
+    router.push(backHref);
+  };
 
   const submit = async () => {
     setSubmitting(true);
@@ -321,6 +334,11 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
                 <PreferencesControls value={prefs} onChange={changePrefs} />
               </PopoverContent>
             </Popover>
+            <Button variant="outline" onClick={() => setExitOpen(true)}>
+              <LogOut className="size-4" aria-hidden />
+              <span className="hidden sm:inline">Save & exit</span>
+              <span className="sr-only sm:hidden">Save and exit</span>
+            </Button>
             <Button onClick={() => setReviewOpen(true)}>Review & submit</Button>
           </div>
         </div>
@@ -491,6 +509,29 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
             <Button onClick={submit} disabled={submitting || !sync.online}>
               {submitting && <Loader2 className="size-4 animate-spin" aria-hidden />}
               {sync.online ? "Submit final answers" : "Reconnect to submit"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={exitOpen} onOpenChange={setExitOpen}>
+        <DialogContent className={cn("sm:max-w-md", themeClass)}>
+          <DialogHeader>
+            <DialogTitle>Save and leave the examination?</DialogTitle>
+            <DialogDescription>
+              Your answers are saved and the attempt stays open. Your timer keeps running on the server — you can return
+              until time expires at <LocalTime value={new Date(expiresAt).toISOString()} mode="time" />. This does not submit your exam.
+            </DialogDescription>
+          </DialogHeader>
+          {sync.pendingCount > 0 && (
+            <p className="flex items-center gap-2 rounded-md bg-warning/15 p-3 text-sm">
+              <CloudOff className="size-4 shrink-0" aria-hidden /> {sync.pendingCount} answer(s) are still syncing; they will be sent before you leave.
+            </p>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExitOpen(false)} disabled={exiting}>Keep working</Button>
+            <Button onClick={saveAndExit} disabled={exiting}>
+              {exiting && <Loader2 className="size-4 animate-spin" aria-hidden />} Save & exit
             </Button>
           </DialogFooter>
         </DialogContent>
