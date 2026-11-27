@@ -1,0 +1,2002 @@
+[
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which HTML element is used for the largest level-one heading?",
+    "options": [
+      "<h1>",
+      "<h6>",
+      "<head>",
+      "<header>"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which HTML attribute provides alternative text for an image?",
+    "options": [
+      "title",
+      "alt",
+      "src",
+      "href"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which element creates a hyperlink?",
+    "options": [
+      "<link>",
+      "<a>",
+      "<href>",
+      "<nav>"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which attribute connects a label to a form control?",
+    "options": [
+      "for",
+      "name",
+      "value",
+      "target"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which input type is intended for an email address?",
+    "options": [
+      "text",
+      "mail",
+      "email",
+      "address"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which element is used to embed JavaScript in an HTML page?",
+    "options": [
+      "<script>",
+      "<javascript>",
+      "<code>",
+      "<js>"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which semantic element represents the main content of a document?",
+    "options": [
+      "<section>",
+      "<main>",
+      "<article>",
+      "<aside>"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which attribute makes a form field mandatory?",
+    "options": [
+      "validate",
+      "required",
+      "mandatory",
+      "checked"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which HTML element is appropriate for a self-contained blog post?",
+    "options": [
+      "<article>",
+      "<span>",
+      "<footer>",
+      "<b>"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which element groups related controls in a form?",
+    "options": [
+      "<group>",
+      "<fieldset>",
+      "<formgroup>",
+      "<legend>"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does the HTML lang attribute on the html element specify?",
+    "options": [
+      "The page encoding",
+      "The document language",
+      "The browser version",
+      "The page title"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which element is used to provide a caption for a figure?",
+    "options": [
+      "<caption>",
+      "<figcaption>",
+      "<summary>",
+      "<label>"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which attribute opens a link in a new browsing context?",
+    "options": [
+      "new",
+      "target=\"_blank\"",
+      "rel=\"new\"",
+      "window=\"new\""
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which element defines a table row?",
+    "options": [
+      "<td>",
+      "<th>",
+      "<tr>",
+      "<row>"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which element associates a visible caption with a table?",
+    "options": [
+      "<label>",
+      "<caption>",
+      "<legend>",
+      "<title>"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which input type allows selecting one date?",
+    "options": [
+      "calendar",
+      "date",
+      "datetime",
+      "day"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which element represents emphasized text semantically?",
+    "options": [
+      "<i>",
+      "<em>",
+      "<small>",
+      "<mark>"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which attribute uniquely identifies an HTML element within a document?",
+    "options": [
+      "class",
+      "name",
+      "id",
+      "role"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which element embeds another webpage in the current page?",
+    "options": [
+      "<embedpage>",
+      "<iframe>",
+      "<framepage>",
+      "<portal>"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is the purpose of the doctype declaration in HTML?",
+    "options": [
+      "Load CSS",
+      "Declare the document type and standards mode",
+      "Import JavaScript",
+      "Set page metadata"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTML",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which CSS property changes the text color?",
+    "options": [
+      "font-color",
+      "color",
+      "text-style",
+      "foreground"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which CSS selector targets an element with id=\"menu\"?",
+    "options": [
+      ".menu",
+      "#menu",
+      "menu",
+      "*menu"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which CSS selector targets all elements with class=\"card\"?",
+    "options": [
+      "#card",
+      "card",
+      ".card",
+      "@card"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which property controls the space inside an element's border?",
+    "options": [
+      "margin",
+      "padding",
+      "gap",
+      "outline"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which property controls the space outside an element's border?",
+    "options": [
+      "padding",
+      "margin",
+      "border-spacing",
+      "inset"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which CSS layout system is designed primarily for one-dimensional layouts?",
+    "options": [
+      "Grid",
+      "Flexbox",
+      "Float",
+      "Positioning"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which CSS layout system is designed for two-dimensional rows and columns?",
+    "options": [
+      "Flexbox",
+      "Grid",
+      "Inline flow",
+      "Float"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which declaration makes an element a flex container?",
+    "options": [
+      "display: block",
+      "display: flex",
+      "position: flex",
+      "flex: display"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which property controls the stacking order of positioned elements?",
+    "options": [
+      "order",
+      "z-index",
+      "stack",
+      "layer-index"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which pseudo-class applies styles when a pointer is over an element?",
+    "options": [
+      "::focus",
+      ":hover",
+      ":active-element",
+      ":pointer"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which unit is relative to the root element's font size?",
+    "options": [
+      "em",
+      "rem",
+      "px",
+      "vh"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which CSS property rounds the corners of a box?",
+    "options": [
+      "corner-radius",
+      "border-radius",
+      "radius",
+      "round"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which property controls whether content overflowing a box is clipped or scrollable?",
+    "options": [
+      "overflow",
+      "visibility",
+      "display",
+      "clip-path"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does box-sizing: border-box do?",
+    "options": [
+      "Excludes padding from width",
+      "Includes padding and border in declared width and height",
+      "Removes the border",
+      "Uses content width only"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which at-rule is commonly used for responsive breakpoints?",
+    "options": [
+      "@screen",
+      "@responsive",
+      "@media",
+      "@device"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which property defines the columns of a CSS Grid container?",
+    "options": [
+      "grid-template-columns",
+      "grid-column-count",
+      "columns-template",
+      "column-layout"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which value of position keeps an element in normal flow until a scroll threshold is reached?",
+    "options": [
+      "absolute",
+      "fixed",
+      "sticky",
+      "relative-fixed"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which property is used to animate a change between CSS property values over time?",
+    "options": [
+      "transform",
+      "transition",
+      "animation-name-only",
+      "timing"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which CSS function is commonly used to create a responsive width with minimum and maximum bounds?",
+    "options": [
+      "range()",
+      "clamp()",
+      "bound()",
+      "limit()"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "HARD",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which selector has the highest specificity among these choices?",
+    "options": [
+      "p",
+      ".notice",
+      "#notice",
+      "div p"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "CSS",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which JavaScript keyword declares a block-scoped variable that can be reassigned?",
+    "options": [
+      "var",
+      "let",
+      "const",
+      "static"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which JavaScript keyword declares a block-scoped binding that cannot be reassigned?",
+    "options": [
+      "let",
+      "var",
+      "const",
+      "define"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which operator checks equality without type coercion?",
+    "options": [
+      "==",
+      "=",
+      "===",
+      "!="
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does Array.prototype.map() return?",
+    "options": [
+      "The original array only",
+      "A new array of transformed values",
+      "A single boolean",
+      "The first matching item"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which array method adds one or more elements to the end of an array?",
+    "options": [
+      "pop()",
+      "shift()",
+      "push()",
+      "unshift()"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which array method creates a new array containing elements that pass a test?",
+    "options": [
+      "filter()",
+      "forEach()",
+      "reduce()",
+      "findIndex()"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does JSON.parse() do?",
+    "options": [
+      "Converts an object to JSON text",
+      "Parses JSON text into a JavaScript value",
+      "Validates HTML",
+      "Sends an HTTP request"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which method converts a JavaScript value into a JSON string?",
+    "options": [
+      "JSON.parse()",
+      "JSON.stringify()",
+      "toJSON.parse()",
+      "String.json()"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is the result of typeof null in JavaScript?",
+    "options": [
+      "null",
+      "undefined",
+      "object",
+      "boolean"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which construct handles an exception thrown inside a try block?",
+    "options": [
+      "if/else",
+      "try/catch",
+      "for/in",
+      "switch/case"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which event fires when a user submits a form?",
+    "options": [
+      "change",
+      "submit",
+      "load",
+      "hover"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which DOM method selects the first element matching a CSS selector?",
+    "options": [
+      "getElementsByClassName()",
+      "querySelector()",
+      "querySelectorAll()",
+      "selectOne()"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which property safely sets an element's text content without parsing it as HTML?",
+    "options": [
+      "innerHTML",
+      "outerHTML",
+      "textContent",
+      "htmlText"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does addEventListener() do?",
+    "options": [
+      "Creates a CSS rule",
+      "Registers an event handler",
+      "Removes an element",
+      "Starts a server"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which Promise method runs when the promise fulfills?",
+    "options": [
+      "catch()",
+      "then()",
+      "finally() only",
+      "reject()"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does the await keyword do inside an async function?",
+    "options": [
+      "Blocks the entire browser",
+      "Pauses that async function until a promise settles",
+      "Converts a promise to a callback",
+      "Creates a new promise automatically"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which statement correctly creates an arrow function that returns x multiplied by two?",
+    "options": [
+      "function => x * 2",
+      "const f = (x) => x * 2",
+      "const f = x -> x * 2",
+      "arrow f(x) { x * 2 }"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is event bubbling?",
+    "options": [
+      "An event travels from the document root to the target only",
+      "An event propagates from the target toward ancestor elements",
+      "An event is triggered twice automatically",
+      "An event is converted into a promise"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "HARD",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which method prevents the browser's default action for an event?",
+    "options": [
+      "stopPropagation()",
+      "preventDefault()",
+      "cancelBubbleOnly()",
+      "removeEvent()"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which storage mechanism persists data across browser sessions for the same origin?",
+    "options": [
+      "sessionStorage",
+      "localStorage",
+      "A local variable",
+      "The call stack"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does the spread syntax (...) do with an iterable in an array literal?",
+    "options": [
+      "Deletes its values",
+      "Expands its elements",
+      "Sorts its elements",
+      "Converts it to a string"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "JavaScript",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which HTTP method is conventionally used to retrieve a resource?",
+    "options": [
+      "POST",
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which HTTP status code means a request succeeded?",
+    "options": [
+      "200",
+      "301",
+      "400",
+      "500"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which HTTP status code indicates that authentication is required or invalid?",
+    "options": [
+      "200",
+      "302",
+      "401",
+      "503"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which HTTP status code indicates the server understood the request but refuses authorization?",
+    "options": [
+      "201",
+      "401",
+      "403",
+      "404"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does REST primarily describe?",
+    "options": [
+      "A database engine",
+      "An architectural style for networked applications",
+      "A JavaScript framework",
+      "A CSS methodology"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which header commonly indicates that a request body contains JSON?",
+    "options": [
+      "Accept-Language",
+      "Content-Type: application/json",
+      "Cache-Control: no-store",
+      "Host: localhost"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is CORS used to control?",
+    "options": [
+      "Database indexing",
+      "Cross-origin browser access to resources",
+      "Password hashing",
+      "CSS inheritance"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "HARD",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does HTTPS add to HTTP?",
+    "options": [
+      "Automatic database backups",
+      "TLS-protected communication",
+      "Faster JavaScript execution",
+      "A required login form"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which HTTP method is commonly used to partially update a resource?",
+    "options": [
+      "GET",
+      "PUT",
+      "PATCH",
+      "TRACE"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does a 404 HTTP status code mean?",
+    "options": [
+      "Unauthorized",
+      "Resource not found",
+      "Server error",
+      "Request accepted"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is the purpose of an API endpoint?",
+    "options": [
+      "A specific URL or route through which an API resource or operation is accessed",
+      "A database password",
+      "A CSS breakpoint",
+      "A browser extension"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "HTTP and APIs",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which React hook is used to add state to a function component?",
+    "options": [
+      "useEffect",
+      "useState",
+      "useMemo",
+      "useRef"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "React",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "When should a React useEffect cleanup function run?",
+    "options": [
+      "Only before the first render",
+      "Before the effect reruns and when the component unmounts",
+      "After every click regardless of dependencies",
+      "Only during server rendering"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "HARD",
+    "subject": "Web Development",
+    "topic": "React",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Why should React list items generally have stable keys?",
+    "options": [
+      "To encrypt list data",
+      "To help React identify items across updates",
+      "To add CSS automatically",
+      "To prevent all re-renders"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "React",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is the usual way to pass data from a parent component to a child component?",
+    "options": [
+      "Props",
+      "State setters only",
+      "DOM attributes only",
+      "Local storage"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "React",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is a controlled input in React?",
+    "options": [
+      "An input whose value is controlled by React state and updated through handlers",
+      "An input disabled for users",
+      "An input that stores data only in cookies",
+      "An input without a name attribute"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "React",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does lifting state up mean in React?",
+    "options": [
+      "Moving shared state to a common ancestor component",
+      "Moving state into CSS",
+      "Converting state into a URL",
+      "Deleting duplicated components"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "React",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which React feature allows rendering different UI based on a condition?",
+    "options": [
+      "Conditional rendering",
+      "Hydration only",
+      "Portals only",
+      "Memoization only"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "React",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is the purpose of React.memo()?",
+    "options": [
+      "To persist state to a database",
+      "To memoize a component render when props have not changed",
+      "To replace useEffect",
+      "To validate forms automatically"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "HARD",
+    "subject": "Web Development",
+    "topic": "React",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which SQL clause filters rows before grouping?",
+    "options": [
+      "HAVING",
+      "WHERE",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "Databases",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which SQL clause filters grouped results after GROUP BY?",
+    "options": [
+      "WHERE",
+      "HAVING",
+      "FROM",
+      "JOIN"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Databases",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is a primary key?",
+    "options": [
+      "A column or set of columns that uniquely identifies each row",
+      "A column that always contains text",
+      "A duplicate index",
+      "A password for the database"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "Databases",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is a foreign key used for?",
+    "options": [
+      "Encrypting a table",
+      "Enforcing a relationship to a key in another or the same table",
+      "Sorting rows",
+      "Creating a database user"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Databases",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which SQL command retrieves data from a table?",
+    "options": [
+      "FETCH TABLE",
+      "SELECT",
+      "PULL",
+      "OPEN"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "Databases",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does database normalization primarily aim to reduce?",
+    "options": [
+      "Data redundancy and update anomalies",
+      "Network latency",
+      "Password complexity",
+      "Frontend bundle size"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Databases",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does ACID's atomicity property mean?",
+    "options": [
+      "Transactions are all-or-nothing",
+      "Transactions always run quickly",
+      "Data is stored alphabetically",
+      "Queries cannot fail"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "HARD",
+    "subject": "Web Development",
+    "topic": "Databases",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which JOIN returns rows with matching values in both joined tables?",
+    "options": [
+      "LEFT JOIN",
+      "RIGHT JOIN",
+      "INNER JOIN",
+      "CROSS JOIN"
+    ],
+    "correct": [
+      "c"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Databases",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Why should parameterized queries be used?",
+    "options": [
+      "To improve CSS rendering",
+      "To help prevent SQL injection",
+      "To remove database indexes",
+      "To make all queries public"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is password hashing used for?",
+    "options": [
+      "To store passwords in reversible plain text",
+      "To store a one-way derived representation of a password",
+      "To send passwords in URLs",
+      "To avoid authentication"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Where should a server-side secret such as AUTH_SECRET be stored?",
+    "options": [
+      "In a public frontend JavaScript file",
+      "In a protected environment variable or secret manager",
+      "In a CSS file",
+      "In a GitHub README"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is the principle of least privilege?",
+    "options": [
+      "Give every user administrator access",
+      "Give each user only the permissions needed for their tasks",
+      "Disable all user accounts",
+      "Allow access based on URL obscurity"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is the purpose of CSRF protection?",
+    "options": [
+      "To prevent unauthorized cross-site requests using a victim's authenticated session",
+      "To compress JavaScript",
+      "To encrypt database backups",
+      "To stop all SQL queries"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "HARD",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which cookie attribute helps prevent JavaScript from reading a session cookie?",
+    "options": [
+      "Secure",
+      "HttpOnly",
+      "SameSite=None",
+      "Path"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is XSS?",
+    "options": [
+      "Cross-site scripting, where untrusted content executes as script in a user's browser",
+      "A database replication protocol",
+      "A CSS layout method",
+      "A network compression format"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Why should authorization be checked on the server?",
+    "options": [
+      "Client-side controls can be bypassed",
+      "Server checks make HTML smaller",
+      "Browsers cannot display buttons otherwise",
+      "It eliminates the need for authentication"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "Which response is safest when an API receives invalid input?",
+    "options": [
+      "Silently accept it",
+      "Validate it and return a suitable error without exposing sensitive details",
+      "Disable authentication",
+      "Return database credentials"
+    ],
+    "correct": [
+      "b"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Security",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is the main purpose of an automated end-to-end test?",
+    "options": [
+      "To verify a user workflow across the running application",
+      "To replace all unit tests",
+      "To generate production data",
+      "To style the UI"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "EASY",
+    "subject": "Web Development",
+    "topic": "Testing",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What does a regression test check?",
+    "options": [
+      "Whether previously working behavior still works after changes",
+      "Whether a website has a logo",
+      "Whether code has comments",
+      "Whether a database is empty"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Testing",
+    "multi_scoring": "ALL_OR_NOTHING"
+  },
+  {
+    "type": "MCQ_SINGLE",
+    "prompt": "What is a test fixture commonly used for?",
+    "options": [
+      "Providing repeatable setup data and state for tests",
+      "Deploying a production server",
+      "Minifying CSS",
+      "Generating passwords for users"
+    ],
+    "correct": [
+      "a"
+    ],
+    "accepted": [],
+    "marks": 1,
+    "negative_marks": 0.25,
+    "difficulty": "MEDIUM",
+    "subject": "Web Development",
+    "topic": "Testing",
+    "multi_scoring": "ALL_OR_NOTHING"
+  }
+]

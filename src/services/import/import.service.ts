@@ -21,13 +21,30 @@ import { assertCanManageExam } from "@/lib/permissions";
 import { audit } from "@/services/audit";
 import { QuestionService } from "@/services/questions/question.service";
 
+export type PreviewRow = { row: number; label: string; status: "valid" | "duplicate" | "error" };
+
 export type ImportSummary = {
   total: number;
   created: number;
   duplicates: RowDuplicate[];
   errors: RowError[];
   committed: boolean;
+  dryRun: boolean;
+  /** Row-by-row status for the preview table. */
+  preview: PreviewRow[];
 };
+
+/** dryRun: validate and preview only. skipInvalid: import the valid rows even if some rows have errors. */
+export type ImportOptions = { dryRun?: boolean; skipInvalid?: boolean };
+
+function preview(total: number, labels: Map<number, string>, errors: RowError[], duplicates: RowDuplicate[]): PreviewRow[] {
+  const bad = new Set(errors.map((e) => e.row));
+  const dup = new Set(duplicates.map((d) => d.row));
+  return Array.from({ length: total }, (_, i) => {
+    const row = i + 2;
+    return { row, label: labels.get(row) ?? "", status: bad.has(row) ? "error" : dup.has(row) ? "duplicate" : "valid" };
+  });
+}
 
 export { MAX_IMPORT_BYTES, MAX_IMPORT_ROWS };
 
@@ -39,13 +56,14 @@ export class ImportService {
    */
   static async importCandidates(
     actor: SessionUser,
-    input: { format: "csv" | "json"; content: string; defaultPassword?: string; examId?: string },
+    input: { format: "csv" | "json"; content: string; defaultPassword?: string; examId?: string } & ImportOptions,
   ): Promise<ImportSummary> {
     if (input.examId) await assertCanManageExam(actor, input.examId);
     const rows = parseImportRows(input.format, input.content);
     const checked = validateCandidateRows(rows, input.defaultPassword);
-    const summary: ImportSummary = { total: rows.length, created: 0, duplicates: checked.duplicates, errors: checked.errors, committed: false };
+    const summary: ImportSummary = { total: rows.length, created: 0, duplicates: checked.duplicates, errors: checked.errors, committed: false, dryRun: !!input.dryRun, preview: [] };
     const parsed = checked.valid;
+    const labels = new Map(rows.map((r, i) => [i + 2, `${String(r.name ?? "").slice(0, 60)} <${String(r.email ?? "").slice(0, 80)}>`]));
 
     if (parsed.length) {
       const existing = await db
@@ -57,7 +75,8 @@ export class ImportService {
       parsed.splice(0, parsed.length, ...parsed.filter((x) => !taken.has(x.email)));
     }
 
-    if (summary.errors.length || parsed.length === 0) return summary;
+    summary.preview = preview(rows.length, labels, summary.errors, summary.duplicates);
+    if (input.dryRun || (summary.errors.length && !input.skipInvalid) || parsed.length === 0) return summary;
 
     // Cost 10 for bulk import keeps a 200-row file inside serverless time limits; sign-in re-hash is not required.
     const prepared = await Promise.all(
@@ -81,11 +100,12 @@ export class ImportService {
    * accepted (short answers, "|"-separated), marks, negative_marks, difficulty, subject, topic, multi_scoring.
    * JSON: an array of the same fields, where options/correct/accepted may be arrays.
    */
-  static async importQuestions(actor: SessionUser, input: { format: "csv" | "json"; content: string }): Promise<ImportSummary> {
+  static async importQuestions(actor: SessionUser, input: { format: "csv" | "json"; content: string } & ImportOptions): Promise<ImportSummary> {
     if (actor.role !== "EXAMINER" && actor.role !== "ADMIN") throw ApiError.forbidden();
     const rows = parseImportRows(input.format, input.content);
     const checked = validateQuestionRows(rows);
-    const summary: ImportSummary = { total: rows.length, created: 0, duplicates: checked.duplicates, errors: checked.errors, committed: false };
+    const summary: ImportSummary = { total: rows.length, created: 0, duplicates: checked.duplicates, errors: checked.errors, committed: false, dryRun: !!input.dryRun, preview: [] };
+    const labels = new Map(rows.map((r, i) => [i + 2, `${String(r.type ?? "")} · ${String(r.prompt ?? "").slice(0, 90)}`]));
     const valid = checked.valid.map((v) => ({ row: v.row, key: v.key, cols: QuestionService.columns(v.input) }));
 
     if (valid.length) {
@@ -98,7 +118,8 @@ export class ImportService {
       valid.splice(0, valid.length, ...valid.filter((x) => !have.has(x.key)));
     }
 
-    if (summary.errors.length || valid.length === 0) return summary;
+    summary.preview = preview(rows.length, labels, summary.errors, summary.duplicates);
+    if (input.dryRun || (summary.errors.length && !input.skipInvalid) || valid.length === 0) return summary;
     await runBatch([db.insert(questions).values(valid.map((v) => ({ ...v.cols, authorId: actor.id })))]);
     summary.created = valid.length;
     summary.committed = true;

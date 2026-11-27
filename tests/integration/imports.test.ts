@@ -21,7 +21,8 @@ describe("bulk candidate import", () => {
     const before = await countUsers();
     const s = await ImportService.importCandidates(w.users.ex1, { format: "csv", content: `name,email\nGood One,${e("g1")}\nX,not-an-email\n`, defaultPassword: "Import-Pass-1" });
     expect(s).toMatchObject({ committed: false, created: 0 });
-    expect(s.errors).toEqual([{ row: 3, message: expect.any(String) }]);
+    // One entry per problem: row 3 has a too-short name AND an invalid email
+    expect(s.errors.map((e) => [e.row, e.field]).sort()).toEqual([[3, "email"], [3, "name"]]);
     expect(await countUsers()).toBe(before);
   });
   it("valid file commits and enrols; in-file duplicate skipped", async () => {
@@ -65,5 +66,23 @@ describe("bulk question import", () => {
   it("stores markup as plain text (rendered escaped by React)", async () => {
     const s = await ImportService.importQuestions(w.users.ex1, { format: "json", content: JSON.stringify([{ type: "ESSAY", prompt: `IT ${w.run} <img src=x onerror=alert(1)>`, marks: 1 }]) });
     expect(s.created).toBe(1);
+  });
+});
+
+describe("dry run and import-valid-rows", () => {
+  it("dry run validates and previews without writing; skipInvalid imports only the valid rows", async () => {
+    const content = JSON.stringify([
+      { type: "MCQ_SINGLE", prompt: `IT ${w.run} partial ok`, options: ["A", "B"], correct: "a", marks: 1 },
+      { type: "MCQ_SINGLE", prompt: `IT ${w.run} partial bad`, options: ["A", "B"], correct: "z", marks: 1 },
+    ]);
+    const dry = await ImportService.importQuestions(w.users.ex1, { format: "json", content, dryRun: true });
+    expect(dry).toMatchObject({ dryRun: true, committed: false, created: 0 });
+    expect(dry.preview.map((p) => p.status)).toEqual(["valid", "error"]);
+    expect(dry.errors[0]).toMatchObject({ row: 3, field: "correct" });
+    expect((await db.select().from(questions).where(like(questions.prompt, `IT ${w.run} partial%`))).length).toBe(0);
+    const strict = await ImportService.importQuestions(w.users.ex1, { format: "json", content });
+    expect(strict.committed).toBe(false);
+    const partial = await ImportService.importQuestions(w.users.ex1, { format: "json", content, skipInvalid: true });
+    expect(partial).toMatchObject({ committed: true, created: 1 });
   });
 });

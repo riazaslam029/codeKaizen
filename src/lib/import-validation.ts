@@ -7,7 +7,8 @@ import { password as passwordRule } from "./validations/user";
 export const MAX_IMPORT_ROWS = 200;
 export const MAX_IMPORT_BYTES = 1_000_000;
 
-export type RowError = { row: number; message: string };
+/** One entry per problem: spreadsheet row (header = row 1), the column/field, and the reason. */
+export type RowError = { row: number; field: string; message: string };
 export type RowDuplicate = { row: number; value: string; reason: string };
 
 /** Parses an uploaded CSV/JSON file into row objects; rejects oversized, empty or malformed files. */
@@ -45,12 +46,12 @@ export function validateCandidateRows(rows: Record<string, unknown>[], defaultPa
     const row = i + 2;
     const r = candidateRow.safeParse(raw);
     if (!r.success) {
-      errors.push({ row, message: r.error.issues.map((x) => x.message).join("; ") });
+      for (const x of r.error.issues) errors.push({ row, field: x.path.join(".") || "row", message: x.message });
       return;
     }
     const pw = r.data.password || defaultPassword || "";
     if (pw.length < 8) {
-      errors.push({ row, message: "no password column and no default password (min 8 characters)" });
+      errors.push({ row, field: "password", message: "no password column and no default password (min 8 characters)" });
       return;
     }
     if (seen.has(r.data.email)) {
@@ -64,6 +65,9 @@ export function validateCandidateRows(rows: Record<string, unknown>[], defaultPa
 }
 
 export const questionKey = (prompt: string) => prompt.toLowerCase().replace(/\s+/g, " ").trim();
+
+/** Schema paths → the column names a user sees in the file. */
+const FIELD: Record<string, string> = { correctOptionIds: "correct", negativeMarks: "negative_marks", multiScoring: "multi_scoring" };
 
 const split = (v: unknown) => (Array.isArray(v) ? v.map(String) : typeof v === "string" && v.trim() ? v.split("|").map((s) => s.trim()) : []);
 
@@ -100,7 +104,7 @@ export function validateQuestionRows(rows: Record<string, unknown>[]) {
     };
     const r = questionSchema.safeParse(candidate);
     if (!r.success) {
-      errors.push({ row, message: r.error.issues.map((x) => `${x.path.join(".") || "row"}: ${x.message}`).join("; ") });
+      for (const x of r.error.issues) errors.push({ row, field: FIELD[String(x.path[0] ?? "")] ?? (x.path.join(".") || "row"), message: x.message });
       return;
     }
     const key = questionKey(r.data.prompt);

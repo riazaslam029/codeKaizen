@@ -9,6 +9,8 @@ const body = z.object({
   content: z.string().min(1, "The file is empty"),
   defaultPassword: z.string().max(128).optional(),
   examId: z.uuid().optional(),
+  dryRun: z.boolean().optional(),
+  skipInvalid: z.boolean().optional(),
 });
 
 /** POST /api/import/candidates | /api/import/questions — validated, all-or-nothing bulk import. */

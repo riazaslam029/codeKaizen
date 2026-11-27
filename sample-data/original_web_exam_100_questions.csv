@@ -1,0 +1,101 @@
+﻿type,prompt,options,correct,accepted,marks,negative_marks,difficulty,subject,topic,multi_scoring
+single,Which HTML element is used for the largest level-one heading?,<h1>|<h6>|<head>|<header>,a,,1,0.25,easy,Web Development,HTML,none
+single,Which HTML attribute provides alternative text for an image?,title|alt|src|href,b,,1,0.25,easy,Web Development,HTML,none
+single,Which element creates a hyperlink?,<link>|<a>|<href>|<nav>,b,,1,0.25,easy,Web Development,HTML,none
+single,Which attribute connects a label to a form control?,for|name|value|target,a,,1,0.25,medium,Web Development,HTML,none
+single,Which input type is intended for an email address?,text|mail|email|address,c,,1,0.25,easy,Web Development,HTML,none
+single,Which element is used to embed JavaScript in an HTML page?,<script>|<javascript>|<code>|<js>,a,,1,0.25,easy,Web Development,HTML,none
+single,Which semantic element represents the main content of a document?,<section>|<main>|<article>|<aside>,b,,1,0.25,medium,Web Development,HTML,none
+single,Which attribute makes a form field mandatory?,validate|required|mandatory|checked,b,,1,0.25,easy,Web Development,HTML,none
+single,Which HTML element is appropriate for a self-contained blog post?,<article>|<span>|<footer>|<b>,a,,1,0.25,medium,Web Development,HTML,none
+single,Which element groups related controls in a form?,<group>|<fieldset>|<formgroup>|<legend>,b,,1,0.25,medium,Web Development,HTML,none
+single,What does the HTML lang attribute on the html element specify?,The page encoding|The document language|The browser version|The page title,b,,1,0.25,medium,Web Development,HTML,none
+single,Which element is used to provide a caption for a figure?,<caption>|<figcaption>|<summary>|<label>,b,,1,0.25,medium,Web Development,HTML,none
+single,Which attribute opens a link in a new browsing context?,"new|target=""_blank""|rel=""new""|window=""new""",b,,1,0.25,easy,Web Development,HTML,none
+single,Which element defines a table row?,<td>|<th>|<tr>|<row>,c,,1,0.25,easy,Web Development,HTML,none
+single,Which element associates a visible caption with a table?,<label>|<caption>|<legend>|<title>,b,,1,0.25,medium,Web Development,HTML,none
+single,Which input type allows selecting one date?,calendar|date|datetime|day,b,,1,0.25,easy,Web Development,HTML,none
+single,Which element represents emphasized text semantically?,<i>|<em>|<small>|<mark>,b,,1,0.25,medium,Web Development,HTML,none
+single,Which attribute uniquely identifies an HTML element within a document?,class|name|id|role,c,,1,0.25,easy,Web Development,HTML,none
+single,Which element embeds another webpage in the current page?,<embedpage>|<iframe>|<framepage>|<portal>,b,,1,0.25,medium,Web Development,HTML,none
+single,What is the purpose of the doctype declaration in HTML?,Load CSS|Declare the document type and standards mode|Import JavaScript|Set page metadata,b,,1,0.25,medium,Web Development,HTML,none
+single,Which CSS property changes the text color?,font-color|color|text-style|foreground,b,,1,0.25,easy,Web Development,CSS,none
+single,"Which CSS selector targets an element with id=""menu""?", .menu|#menu|menu|*menu,b,,1,0.25,easy,Web Development,CSS,none
+single,"Which CSS selector targets all elements with class=""card""?",#card|card|.card|@card,c,,1,0.25,easy,Web Development,CSS,none
+single,Which property controls the space inside an element's border?,margin|padding|gap|outline,b,,1,0.25,easy,Web Development,CSS,none
+single,Which property controls the space outside an element's border?,padding|margin|border-spacing|inset,b,,1,0.25,easy,Web Development,CSS,none
+single,Which CSS layout system is designed primarily for one-dimensional layouts?,Grid|Flexbox|Float|Positioning,b,,1,0.25,medium,Web Development,CSS,none
+single,Which CSS layout system is designed for two-dimensional rows and columns?,Flexbox|Grid|Inline flow|Float,b,,1,0.25,medium,Web Development,CSS,none
+single,Which declaration makes an element a flex container?,display: block|display: flex|position: flex|flex: display,b,,1,0.25,easy,Web Development,CSS,none
+single,Which property controls the stacking order of positioned elements?,order|z-index|stack|layer-index,b,,1,0.25,medium,Web Development,CSS,none
+single,Which pseudo-class applies styles when a pointer is over an element?,::focus|:hover|:active-element|:pointer,b,,1,0.25,easy,Web Development,CSS,none
+single,Which unit is relative to the root element's font size?,em|rem|px|vh,b,,1,0.25,medium,Web Development,CSS,none
+single,Which CSS property rounds the corners of a box?,corner-radius|border-radius|radius|round,b,,1,0.25,easy,Web Development,CSS,none
+single,Which property controls whether content overflowing a box is clipped or scrollable?,overflow|visibility|display|clip-path,a,,1,0.25,medium,Web Development,CSS,none
+single,What does box-sizing: border-box do?,Excludes padding from width|Includes padding and border in declared width and height|Removes the border|Uses content width only,b,,1,0.25,medium,Web Development,CSS,none
+single,Which at-rule is commonly used for responsive breakpoints?,@screen|@responsive|@media|@device,c,,1,0.25,easy,Web Development,CSS,none
+single,Which property defines the columns of a CSS Grid container?,grid-template-columns|grid-column-count|columns-template|column-layout,a,,1,0.25,medium,Web Development,CSS,none
+single,Which value of position keeps an element in normal flow until a scroll threshold is reached?,absolute|fixed|sticky|relative-fixed,c,,1,0.25,medium,Web Development,CSS,none
+single,Which property is used to animate a change between CSS property values over time?,transform|transition|animation-name-only|timing,b,,1,0.25,medium,Web Development,CSS,none
+single,Which CSS function is commonly used to create a responsive width with minimum and maximum bounds?,range()|clamp()|bound()|limit(),b,,1,0.25,hard,Web Development,CSS,none
+single,Which selector has the highest specificity among these choices?,p|.notice|#notice|div p,c,,1,0.25,medium,Web Development,CSS,none
+single,Which JavaScript keyword declares a block-scoped variable that can be reassigned?,var|let|const|static,b,,1,0.25,easy,Web Development,JavaScript,none
+single,Which JavaScript keyword declares a block-scoped binding that cannot be reassigned?,let|var|const|define,c,,1,0.25,easy,Web Development,JavaScript,none
+single,Which operator checks equality without type coercion?,==|=|===|!=,c,,1,0.25,easy,Web Development,JavaScript,none
+single,What does Array.prototype.map() return?,The original array only|A new array of transformed values|A single boolean|The first matching item,b,,1,0.25,medium,Web Development,JavaScript,none
+single,Which array method adds one or more elements to the end of an array?,pop()|shift()|push()|unshift(),c,,1,0.25,easy,Web Development,JavaScript,none
+single,Which array method creates a new array containing elements that pass a test?,filter()|forEach()|reduce()|findIndex(),a,,1,0.25,medium,Web Development,JavaScript,none
+single,What does JSON.parse() do?,Converts an object to JSON text|Parses JSON text into a JavaScript value|Validates HTML|Sends an HTTP request,b,,1,0.25,medium,Web Development,JavaScript,none
+single,Which method converts a JavaScript value into a JSON string?,JSON.parse()|JSON.stringify()|toJSON.parse()|String.json(),b,,1,0.25,medium,Web Development,JavaScript,none
+single,What is the result of typeof null in JavaScript?,null|undefined|object|boolean,c,,1,0.25,medium,Web Development,JavaScript,none
+single,Which construct handles an exception thrown inside a try block?,if/else|try/catch|for/in|switch/case,b,,1,0.25,easy,Web Development,JavaScript,none
+single,Which event fires when a user submits a form?,change|submit|load|hover,b,,1,0.25,easy,Web Development,JavaScript,none
+single,Which DOM method selects the first element matching a CSS selector?,getElementsByClassName()|querySelector()|querySelectorAll()|selectOne(),b,,1,0.25,medium,Web Development,JavaScript,none
+single,Which property safely sets an element's text content without parsing it as HTML?,innerHTML|outerHTML|textContent|htmlText,c,,1,0.25,medium,Web Development,JavaScript,none
+single,What does addEventListener() do?,Creates a CSS rule|Registers an event handler|Removes an element|Starts a server,b,,1,0.25,easy,Web Development,JavaScript,none
+single,Which Promise method runs when the promise fulfills?,catch()|then()|finally() only|reject(),b,,1,0.25,easy,Web Development,JavaScript,none
+single,What does the await keyword do inside an async function?,Blocks the entire browser|Pauses that async function until a promise settles|Converts a promise to a callback|Creates a new promise automatically,b,,1,0.25,medium,Web Development,JavaScript,none
+single,Which statement correctly creates an arrow function that returns x multiplied by two?,function => x * 2|const f = (x) => x * 2|const f = x -> x * 2|arrow f(x) { x * 2 },b,,1,0.25,easy,Web Development,JavaScript,none
+single,What is event bubbling?,An event travels from the document root to the target only|An event propagates from the target toward ancestor elements|An event is triggered twice automatically|An event is converted into a promise,b,,1,0.25,hard,Web Development,JavaScript,none
+single,Which method prevents the browser's default action for an event?,stopPropagation()|preventDefault()|cancelBubbleOnly()|removeEvent(),b,,1,0.25,medium,Web Development,JavaScript,none
+single,Which storage mechanism persists data across browser sessions for the same origin?,sessionStorage|localStorage|A local variable|The call stack,b,,1,0.25,medium,Web Development,JavaScript,none
+single,What does the spread syntax (...) do with an iterable in an array literal?,Deletes its values|Expands its elements|Sorts its elements|Converts it to a string,b,,1,0.25,medium,Web Development,JavaScript,none
+single,Which HTTP method is conventionally used to retrieve a resource?,POST|GET|PATCH|DELETE,b,,1,0.25,easy,Web Development,HTTP and APIs,none
+single,Which HTTP status code means a request succeeded?,200|301|400|500,a,,1,0.25,easy,Web Development,HTTP and APIs,none
+single,Which HTTP status code indicates that authentication is required or invalid?,200|302|401|503,c,,1,0.25,medium,Web Development,HTTP and APIs,none
+single,Which HTTP status code indicates the server understood the request but refuses authorization?,201|401|403|404,c,,1,0.25,medium,Web Development,HTTP and APIs,none
+single,What does REST primarily describe?,A database engine|An architectural style for networked applications|A JavaScript framework|A CSS methodology,b,,1,0.25,medium,Web Development,HTTP and APIs,none
+single,Which header commonly indicates that a request body contains JSON?,Accept-Language|Content-Type: application/json|Cache-Control: no-store|Host: localhost,b,,1,0.25,medium,Web Development,HTTP and APIs,none
+single,What is CORS used to control?,Database indexing|Cross-origin browser access to resources|Password hashing|CSS inheritance,b,,1,0.25,hard,Web Development,HTTP and APIs,none
+single,What does HTTPS add to HTTP?,Automatic database backups|TLS-protected communication|Faster JavaScript execution|A required login form,b,,1,0.25,easy,Web Development,HTTP and APIs,none
+single,Which HTTP method is commonly used to partially update a resource?,GET|PUT|PATCH|TRACE,c,,1,0.25,medium,Web Development,HTTP and APIs,none
+single,What does a 404 HTTP status code mean?,Unauthorized|Resource not found|Server error|Request accepted,b,,1,0.25,easy,Web Development,HTTP and APIs,none
+single,What is the purpose of an API endpoint?,A specific URL or route through which an API resource or operation is accessed|A database password|A CSS breakpoint|A browser extension,a,,1,0.25,medium,Web Development,HTTP and APIs,none
+single,Which React hook is used to add state to a function component?,useEffect|useState|useMemo|useRef,b,,1,0.25,easy,Web Development,React,none
+single,When should a React useEffect cleanup function run?,Only before the first render|Before the effect reruns and when the component unmounts|After every click regardless of dependencies|Only during server rendering,b,,1,0.25,hard,Web Development,React,none
+single,Why should React list items generally have stable keys?,To encrypt list data|To help React identify items across updates|To add CSS automatically|To prevent all re-renders,b,,1,0.25,medium,Web Development,React,none
+single,What is the usual way to pass data from a parent component to a child component?,Props|State setters only|DOM attributes only|Local storage,a,,1,0.25,easy,Web Development,React,none
+single,What is a controlled input in React?,An input whose value is controlled by React state and updated through handlers|An input disabled for users|An input that stores data only in cookies|An input without a name attribute,a,,1,0.25,medium,Web Development,React,none
+single,What does lifting state up mean in React?,Moving shared state to a common ancestor component|Moving state into CSS|Converting state into a URL|Deleting duplicated components,a,,1,0.25,medium,Web Development,React,none
+single,Which React feature allows rendering different UI based on a condition?,Conditional rendering|Hydration only|Portals only|Memoization only,a,,1,0.25,easy,Web Development,React,none
+single,What is the purpose of React.memo()?,To persist state to a database|To memoize a component render when props have not changed|To replace useEffect|To validate forms automatically,b,,1,0.25,hard,Web Development,React,none
+single,Which SQL clause filters rows before grouping?,HAVING|WHERE|ORDER BY|LIMIT,b,,1,0.25,easy,Web Development,Databases,none
+single,Which SQL clause filters grouped results after GROUP BY?,WHERE|HAVING|FROM|JOIN,b,,1,0.25,medium,Web Development,Databases,none
+single,What is a primary key?,A column or set of columns that uniquely identifies each row|A column that always contains text|A duplicate index|A password for the database,a,,1,0.25,easy,Web Development,Databases,none
+single,What is a foreign key used for?,Encrypting a table|Enforcing a relationship to a key in another or the same table|Sorting rows|Creating a database user,b,,1,0.25,medium,Web Development,Databases,none
+single,Which SQL command retrieves data from a table?,FETCH TABLE|SELECT|PULL|OPEN,b,,1,0.25,easy,Web Development,Databases,none
+single,What does database normalization primarily aim to reduce?,Data redundancy and update anomalies|Network latency|Password complexity|Frontend bundle size,a,,1,0.25,medium,Web Development,Databases,none
+single,What does ACID's atomicity property mean?,Transactions are all-or-nothing|Transactions always run quickly|Data is stored alphabetically|Queries cannot fail,a,,1,0.25,hard,Web Development,Databases,none
+single,Which JOIN returns rows with matching values in both joined tables?,LEFT JOIN|RIGHT JOIN|INNER JOIN|CROSS JOIN,c,,1,0.25,medium,Web Development,Databases,none
+single,Why should parameterized queries be used?,To improve CSS rendering|To help prevent SQL injection|To remove database indexes|To make all queries public,b,,1,0.25,medium,Web Development,Security,none
+single,What is password hashing used for?,To store passwords in reversible plain text|To store a one-way derived representation of a password|To send passwords in URLs|To avoid authentication,b,,1,0.25,easy,Web Development,Security,none
+single,Where should a server-side secret such as AUTH_SECRET be stored?,In a public frontend JavaScript file|In a protected environment variable or secret manager|In a CSS file|In a GitHub README,b,,1,0.25,easy,Web Development,Security,none
+single,What is the principle of least privilege?,Give every user administrator access|Give each user only the permissions needed for their tasks|Disable all user accounts|Allow access based on URL obscurity,b,,1,0.25,medium,Web Development,Security,none
+single,What is the purpose of CSRF protection?,To prevent unauthorized cross-site requests using a victim's authenticated session|To compress JavaScript|To encrypt database backups|To stop all SQL queries,a,,1,0.25,hard,Web Development,Security,none
+single,Which cookie attribute helps prevent JavaScript from reading a session cookie?,Secure|HttpOnly|SameSite=None|Path,b,,1,0.25,medium,Web Development,Security,none
+single,What is XSS?,"Cross-site scripting, where untrusted content executes as script in a user's browser|A database replication protocol|A CSS layout method|A network compression format",a,,1,0.25,medium,Web Development,Security,none
+single,Why should authorization be checked on the server?,Client-side controls can be bypassed|Server checks make HTML smaller|Browsers cannot display buttons otherwise|It eliminates the need for authentication,a,,1,0.25,medium,Web Development,Security,none
+single,Which response is safest when an API receives invalid input?,Silently accept it|Validate it and return a suitable error without exposing sensitive details|Disable authentication|Return database credentials,b,,1,0.25,medium,Web Development,Security,none
+single,What is the main purpose of an automated end-to-end test?,To verify a user workflow across the running application|To replace all unit tests|To generate production data|To style the UI,a,,1,0.25,easy,Web Development,Testing,none
+single,What does a regression test check?,Whether previously working behavior still works after changes|Whether a website has a logo|Whether code has comments|Whether a database is empty,a,,1,0.25,medium,Web Development,Testing,none
+single,What is a test fixture commonly used for?,Providing repeatable setup data and state for tests|Deploying a production server|Minifying CSS|Generating passwords for users,a,,1,0.25,medium,Web Development,Testing,none
