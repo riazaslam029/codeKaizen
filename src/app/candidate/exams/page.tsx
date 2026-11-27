@@ -38,3 +38,6 @@ export default async function CandidateExamsPage() {
     </>
   );
 }
+
+/** Per-user, per-request data (session + live DB): blocking navigation is intended. */
+export const instant = false;

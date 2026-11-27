@@ -32,3 +32,6 @@ async function Workspace({ params }: { params: Promise<{ id: string }> }) {
   const back = state.attempt.isSandbox ? "/examiner/exams" : homeForRole(user.role);
   return <ExamWorkspace initial={state} initialPrefs={prefs} backHref={back} />;
 }
+
+/** Per-user, per-request data (session + live DB): blocking navigation is intended. */
+export const instant = false;

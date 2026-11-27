@@ -99,3 +99,6 @@ export default async function ExamAnalyticsPage({ params }: { params: Promise<{ 
     </>
   );
 }
+
+/** Per-user, per-request data (session + live DB): blocking navigation is intended. */
+export const instant = false;

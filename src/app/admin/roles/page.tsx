@@ -82,3 +82,6 @@ export default async function RolesPage() {
     </>
   );
 }
+
+/** Per-user, per-request data (session + live DB): blocking navigation is intended. */
+export const instant = false;

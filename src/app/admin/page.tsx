@@ -64,3 +64,6 @@ export default async function AdminOverviewPage() {
     </>
   );
 }
+
+/** Per-user, per-request data (session + live DB): blocking navigation is intended. */
+export const instant = false;

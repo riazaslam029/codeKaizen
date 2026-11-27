@@ -28,7 +28,7 @@ export function ExamCard({ e }: { e: CandidateExam }) {
           <div className="flex items-center gap-2">
             <CalendarClock className="size-4 text-muted-foreground" aria-hidden />
             <dt className="sr-only">Window</dt>
-            <dd className="tabular"><LocalTime value={e.startsAt} /> – <LocalTime value={e.endsAt} mode="time" /></dd>
+            <dd className="tabular"><LocalTime value={e.startsAt} /> – <LocalTime value={e.endsAt} /></dd>
           </div>
           <div className="flex items-center gap-2">
             <Timer className="size-4 text-muted-foreground" aria-hidden />

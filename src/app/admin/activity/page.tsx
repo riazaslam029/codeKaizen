@@ -45,3 +45,6 @@ export default async function ActivityPage() {
     </>
   );
 }
+
+/** Per-user, per-request data (session + live DB): blocking navigation is intended. */
+export const instant = false;

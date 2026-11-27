@@ -72,7 +72,7 @@ async function main() {
   const lenaId = id("lena.fischer@codekaizen.test");
   const own = await get(`/api/candidates/${lenaId}/enrollments`, lena.cookie);
   const ownBody = await own.json();
-  check("candidate reads own enrolments → 200 (1 exam)", own.status === 200 && ownBody.enrollments.length === 1);
+  check("candidate reads own enrolments → 200", own.status === 200 && ownBody.enrollments.length >= 1);
   check("enrolment payload has no question/answer data", !JSON.stringify(ownBody).includes("correct"));
   check("candidate reads ANOTHER candidate's enrolments → 404", (await get(`/api/candidates/${lenaId}/enrollments`, omar.cookie)).status === 404);
   check("owning examiner reads candidate enrolments → 200", (await get(`/api/candidates/${lenaId}/enrollments`, examiner.cookie)).status === 200);
@@ -88,7 +88,7 @@ async function main() {
   const candPage = await (await get("/candidate", lena.cookie)).text();
   check("candidate dashboard lists enrolled exam", candPage.includes("WSEC-101"));
   const sofiaLogin = await login("sofia.marin@codekaizen.test", process.env.SEED_CANDIDATE_PASSWORD!);
-  check("unenrolled candidate sees empty state", (await (await get("/candidate", sofiaLogin.cookie)).text()).includes("No examinations yet"));
+  check("candidate not enrolled in WSEC-101 never sees it", !(await (await get("/candidate", sofiaLogin.cookie)).text()).includes("WSEC-101"));
 
   const logout = await fetch(`${BASE}/api/auth/logout`, { method: "POST", headers: { cookie: lena.cookie } });
   check("logout clears cookie", logout.status === 200 && /ckz_session=;|Max-Age=0|Expires=Thu, 01 Jan 1970/i.test(logout.headers.get("set-cookie") ?? ""));

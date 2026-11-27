@@ -186,6 +186,7 @@ async function main() {
   const [existingExam] = await db.select({ id: exams.id }).from(exams).where(eq(exams.code, EXAM_CODE)).limit(1);
   if (existingExam) {
     console.log(`• Exam ${EXAM_CODE} already exists — skipping questions and enrolments`);
+    await seedPracticeExam(db, ids);
     return;
   }
 
@@ -241,6 +242,50 @@ async function main() {
   );
 
   console.log(`✓ Exam ${EXAM_CODE} with ${inserted.length} questions and 2 enrolments`);
+  await seedPracticeExam(db, ids);
+}
+
+/**
+ * An always-open practice exam (window: now−1h → now+30 days, 20 minutes) reusing the bank questions,
+ * with all three candidates enrolled — so the candidate workspace can be demonstrated at any time.
+ */
+async function seedPracticeExam(db: ReturnType<typeof createDb>, ids: Record<string, string>) {
+  const CODE = "WSEC-PRACTICE";
+  const [exists] = await db.select({ id: exams.id }).from(exams).where(eq(exams.code, CODE)).limit(1);
+  if (exists) {
+    console.log(`• Exam ${CODE} already exists`);
+    return;
+  }
+  const examinerId = ids["d.reyes@codekaizen.test"]!;
+  const bank = await db.select({ id: questions.id }).from(questions).where(eq(questions.authorId, examinerId)).limit(11);
+  const now = Date.now();
+  const [exam] = await db
+    .insert(exams)
+    .values({
+      code: CODE,
+      title: "Web Security — Practice Paper",
+      description: "Open practice paper. Try the workspace: autosave, offline mode, scratchpad and review.",
+      instructions: "20 minutes. Questions and options are shuffled for every candidate. Up to 3 attempts.",
+      createdById: examinerId,
+      status: "PUBLISHED",
+      durationMinutes: 20,
+      startsAt: new Date(now - 60 * 60_000),
+      endsAt: new Date(now + 30 * 86_400_000),
+      passPercentage: 50,
+      maxAttempts: 3,
+      shuffleQuestions: true,
+      shuffleOptions: true,
+    })
+    .returning({ id: exams.id });
+  await db.insert(examQuestions).values(bank.map((q, i) => ({ examId: exam!.id, questionId: q.id, position: i + 1 })));
+  await db.insert(enrollments).values(
+    ["lena.fischer@codekaizen.test", "omar.haddad@codekaizen.test", "sofia.marin@codekaizen.test"].map((email) => ({
+      examId: exam!.id,
+      candidateId: ids[email]!,
+      enrolledById: examinerId,
+    })),
+  );
+  console.log(`✓ Exam ${CODE} (open for 30 days) with ${bank.length} questions and 3 enrolments`);
 }
 
 main().catch((err) => {

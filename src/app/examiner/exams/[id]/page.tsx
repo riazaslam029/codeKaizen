@@ -159,3 +159,6 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ id:
     </>
   );
 }
+
+/** Per-user, per-request data (session + live DB): blocking navigation is intended. */
+export const instant = false;

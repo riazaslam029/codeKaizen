@@ -12,7 +12,8 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "test:smoke": "tsx scripts/smoke-test.ts"
+    "test:smoke": "tsx scripts/smoke-test.ts",
+    "test:e2e": "node --require ./scripts/test-env.cjs --import tsx scripts/e2e-exam-flow.ts"
   },
   "dependencies": {
     "@neon/config": "^1.14.8",
