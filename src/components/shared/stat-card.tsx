@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { Tilt3D } from "@/components/motion/tilt-3d";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,7 @@ const TONE = {
 } as const;
 export type StatTone = keyof typeof TONE;
 
-/** One stat tile everywhere: icon chip, label, large number and an always-present sub-line, equal heights in a grid. */
+/** One stat tile everywhere: 3D tilt depth, icon chip, label, Space Grotesk figure, and sub-line. */
 export function StatCard({
   label,
   value,
@@ -27,17 +28,19 @@ export function StatCard({
   tone?: StatTone;
 }) {
   return (
-    <Card className="lift h-full gap-0 py-0 shadow-none">
-      <CardContent className="flex h-full flex-col gap-3 p-4 sm:p-5">
-        <div className="flex min-h-10 items-center gap-2.5">
-          <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", TONE[tone])}>
-            <Icon className="size-4" aria-hidden />
-          </span>
-          <p className="min-w-0 text-sm leading-tight font-medium text-muted-foreground">{label}</p>
-        </div>
-        <p className="tabular text-2xl font-semibold tracking-tight sm:text-3xl">{value}</p>
-        <p className="mt-auto text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
+    <Tilt3D maxTilt={4.5} className="reveal-item h-full rounded-xl">
+      <Card className="lift h-full gap-0 border border-border/90 py-0 shadow-none">
+        <CardContent className="flex h-full flex-col gap-3 p-4 sm:p-5">
+          <div className="flex min-h-10 items-center gap-2.5">
+            <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", TONE[tone])}>
+              <Icon className="size-4" aria-hidden />
+            </span>
+            <p className="min-w-0 text-sm leading-tight font-medium text-muted-foreground">{label}</p>
+          </div>
+          <p className="font-display tabular text-2xl font-bold tracking-tight sm:text-3xl">{value}</p>
+          <p className="font-mono-code mt-auto text-[11px] text-muted-foreground">{hint}</p>
+        </CardContent>
+      </Card>
+    </Tilt3D>
   );
 }

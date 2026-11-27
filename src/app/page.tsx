@@ -1,6 +1,9 @@
-import { redirect } from "next/navigation";
+import { VeyqoraLanding } from "@/components/landing/veyqora-landing";
 
-/** Signed-in users are sent to their area by proxy.ts; everyone else signs in. */
+/**
+ * Signed-in users are routed directly to their role workspace by src/proxy.ts.
+ * Visitors and contest judges see the CodeKaizen Veyqora-inspired showcase landing page.
+ */
 export default function Home() {
-  redirect("/login");
+  return <VeyqoraLanding />;
 }

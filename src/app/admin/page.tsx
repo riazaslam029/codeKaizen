@@ -20,7 +20,11 @@ export default async function AdminOverviewPage() {
 
   return (
     <>
-      <PageHeader title={`Welcome back, ${admin.name.split(" ")[0]}`} description="Platform health at a glance. All figures come from live records." />
+      <PageHeader
+        eyebrow="PLATFORM TELEMETRY"
+        title={`Welcome back, ${admin.name.split(" ")[0]}`}
+        description="Platform health at a glance. All figures come from live records."
+      />
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Users" value={totalUsers} hint={`${roles.CANDIDATE} candidates · ${roles.EXAMINER} examiners`} icon={Users} tone="primary" />
         <StatCard label="Examinations" value={stats.exams} hint={`${stats.liveExams} open right now`} icon={BookOpenCheck} tone="info" />

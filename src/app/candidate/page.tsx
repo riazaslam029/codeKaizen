@@ -33,6 +33,7 @@ export default async function CandidateDashboard() {
   return (
     <>
       <PageHeader
+        eyebrow="CANDIDATE WORKSPACE"
         title={`Hello, ${candidate.name.split(" ")[0]}`}
         description="Your examinations at a glance. Times are shown in your local time zone."
         actions={

@@ -28,6 +28,7 @@ export default async function ExaminerOverview() {
   return (
     <>
       <PageHeader
+        eyebrow="EXAMINER CONSOLE"
         title={`Welcome back, ${examiner.name.split(" ")[0]}`}
         description="Your examinations, live attempts and grading work."
         actions={<Button asChild><Link href="/examiner/exams/new"><Plus className="size-4" aria-hidden /> New examination</Link></Button>}

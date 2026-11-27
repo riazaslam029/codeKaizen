@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from "react";
+import { PageReveal } from "@/components/motion/page-reveal";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { UserRole } from "@/db/schema/enums";
 import { requireRole } from "@/lib/auth/dal";
@@ -27,13 +28,17 @@ export function AppShell({ role, children }: { role: UserRole; children: ReactNo
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b bg-background/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:gap-3 sm:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border/80 bg-background/85 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/75 sm:gap-3 sm:px-6">
           <MobileNav groups={nav.groups} sectionLabel={nav.label} />
           <MobileBrand />
           <Suspense fallback={null}>
             <Breadcrumbs role={role} />
           </Suspense>
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
+            <span className="font-mono-code hidden items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-[10px] tracking-wider text-success uppercase xl:inline-flex">
+              <span className="size-1.5 animate-pulse rounded-full bg-success" aria-hidden="true" />
+              SYS.OPERATIONAL
+            </span>
             <CommandPalette role={role} />
             <ThemeToggle />
             <Notifications />
@@ -43,7 +48,9 @@ export function AppShell({ role, children }: { role: UserRole; children: ReactNo
           </div>
         </header>
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8 lg:py-8">
-          <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+          <Suspense fallback={<PageSkeleton />}>
+            <PageReveal>{children}</PageReveal>
+          </Suspense>
         </main>
       </div>
     </div>
