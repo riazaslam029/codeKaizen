@@ -158,7 +158,7 @@ The same first run also showed the word "accepted" in the candidate payload. It 
 | --- | --- | --- | --- |
 | Git history | meaningful, incremental | 19 commits, imperative messages, one per phase or slice | Pass |
 | Everything pushed | local = origin | `master` = `origin/master` = `efd1dca` | Pass |
-| README: setup, URL, roles, features, 5.3, restriction | present | present; **emails per role listed, passwords deliberately not published** | Pass |
+| README: setup, URL, roles, features, 5.3, restriction | present | present; demo emails per role and the demo password (`12345678`) listed for judges | Pass |
 | Deployed: `/login`, `/verify`, `/api/health` | 200, DB up | 200 · 200 · `{"status":"ok","database":"up"}` | Pass |
 | Deployed: anonymous `/api/users`, `/api/auth/me`, `/api/notifications` | 401 | 401 · 401 · 401 | Pass |
 | Deployed: `/admin`, `/examiner`, `/candidate` anonymous | 307 → /login?next=… | as expected | Pass |

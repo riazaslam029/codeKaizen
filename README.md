@@ -10,16 +10,18 @@ CodeKaizen Exams is a Next.js modular monolith for authoring, delivering, monito
 
 ## Demo accounts
 
-| Role | Email | What it shows |
-| --- | --- | --- |
-| Admin | `admin@codekaizen.test` | users, roles, restriction, platform activity |
-| Examiner (owns all demo exams) | `d.reyes@codekaizen.test` | authoring, monitoring, grading, publishing, analytics |
-| Examiner (owns nothing) | `p.nair@codekaizen.test` | ownership isolation (sees no exams) |
-| Candidate with history | `lena.fischer@codekaizen.test` | results, trend chart, disruption log, practice exam |
-| Candidates | `omar.haddad@` · `sofia.marin@` · `mei.tanaka@` · `jonas.berg@` · `aisha.bello@codekaizen.test` | varied scores and events |
-| **Restricted** candidate | `ravi.kumar@codekaizen.test` | correct password still gets *“Your account has been restricted…”* |
+**Password for every demo account: `12345678`**
 
-Passwords are not published in this repository. They are the `SEED_*_PASSWORD` values used to seed the database. Judges get them with the submission. On a deployment where `DEMO_LOGIN_PASSWORD` is set, the login page shows **quick-fill** buttons for each role.
+| Role | Email | Password | What it shows |
+| --- | --- | --- | --- |
+| Admin | `admin@codekaizen.test` | `12345678` | users, roles, restriction, platform activity |
+| Examiner (owns all demo exams) | `d.reyes@codekaizen.test` | `12345678` | authoring, monitoring, grading, publishing, analytics |
+| Examiner (owns nothing) | `p.nair@codekaizen.test` | `12345678` | ownership isolation (sees no exams) |
+| Candidate with history | `lena.fischer@codekaizen.test` | `12345678` | results, trend chart, disruption log, practice exam |
+| Candidates | `omar.haddad@` · `sofia.marin@` · `mei.tanaka@` · `jonas.berg@` · `aisha.bello@codekaizen.test` | `12345678` | varied scores and events |
+| **Restricted** candidate | `ravi.kumar@codekaizen.test` | `12345678` | correct password still gets *“Your account has been restricted…”* |
+
+These are demo-only accounts with no real data. On a deployment where `DEMO_LOGIN_PASSWORD` is set, the login page also shows **quick-fill** buttons for each role.
 
 ### Seeded story (development branch, `npm run db:seed`)
 | Exam | State | Why it is there |
