@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Verification result", robots: { inde
 
 export default function VerifyCodePage({ params }: { params: Promise<{ code: string }> }) {
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-background px-5 py-10">
+    <main id="main" className="flex min-h-dvh items-center justify-center bg-background px-5 py-10">
       <div className="w-full max-w-md">
         <Brand className="mb-8" />
         <Suspense fallback={<p className="text-sm text-muted-foreground">Checking…</p>}>
@@ -35,7 +35,7 @@ async function Outcome({ params }: { params: Promise<{ code: string }> }) {
     !r
       ? { icon: ShieldX, tone: "border-destructive/40", iconCls: "text-destructive", title: "Invalid", text: `No report was issued with the code ${code}. Check it for typos.` }
       : r.status === "revoked"
-        ? { icon: ShieldAlert, tone: "border-warning/60", iconCls: "text-[oklch(0.5_0.13_65)]", title: "Revoked", text: "This report was issued but has since been withdrawn by the examiner. It is no longer valid." }
+        ? { icon: ShieldAlert, tone: "border-warning/60", iconCls: "text-warning-text", title: "Revoked", text: "This report was issued but has since been withdrawn by the examiner. It is no longer valid." }
         : { icon: ShieldCheck, tone: "border-success/40", iconCls: "text-success", title: "Valid", text: "This code matches a result report issued by CodeKaizen Exams." };
 
   return (

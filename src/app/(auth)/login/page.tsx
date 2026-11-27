@@ -56,7 +56,7 @@ export default function LoginPage() {
         <p className="relative font-mono text-xs text-sidebar-foreground/90">TechnoVerse 5.0 · Web-e-Thon</p>
       </section>
 
-      <section className="flex items-center justify-center px-5 py-12 sm:px-8">
+      <main id="main" className="flex items-center justify-center px-5 py-12 sm:px-8">
         <div className="w-full max-w-sm">
           <Brand className="mb-10 lg:hidden" />
           <h2 className="text-2xl font-semibold">Sign in</h2>
@@ -71,7 +71,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-      </section>
+      </main>
     </div>
   );
 }

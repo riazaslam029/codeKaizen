@@ -14,7 +14,7 @@ import { serverClock } from "@/lib/format";
 import { AttemptService } from "@/services/attempts/attempt.service";
 import { EnrollmentService, ExamService } from "@/services/exams/exam.service";
 import { CheckCircle2, Clock, Radio, Users } from "lucide-react";
-import { IncidentList } from "./incident-list";
+import { SplitIncidents } from "./incident-list";
 
 export const metadata: Metadata = { title: "Live monitoring" };
 
@@ -47,11 +47,11 @@ export default async function MonitorExamPage({ params }: { params: Promise<{ id
         <AutoRefresh seconds={15} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Enrolled" value={enrolled.filter((e) => e.status === "ENROLLED").length} icon={Users} />
-        <StatCard label="In progress" value={live.length} icon={Radio} />
-        <StatCard label="Submitted" value={rows.length - live.length} icon={CheckCircle2} />
-        <StatCard label="Not started" value={notStarted.length} icon={Clock} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <StatCard label="Enrolled" value={enrolled.filter((e) => e.status === "ENROLLED").length} hint="Active enrolments" icon={Users} />
+        <StatCard label="In progress" value={live.length} hint="Answering right now" icon={Radio} tone="success" />
+        <StatCard label="Submitted" value={rows.length - live.length} hint="Including auto-submitted" icon={CheckCircle2} tone="info" />
+        <StatCard label="Not started" value={notStarted.length} hint="Enrolled, no attempt yet" icon={Clock} tone="neutral" />
       </div>
 
       <Card className="mt-6 overflow-hidden py-0 shadow-none">
@@ -89,7 +89,7 @@ export default async function MonitorExamPage({ params }: { params: Promise<{ id
                     </TableCell>
                     <TableCell className="tabular hidden text-sm md:table-cell">{r.status === "IN_PROGRESS" ? `${leftMin} min` : r.submittedAt ? <LocalTime value={r.submittedAt} mode="time" /> : "—"}</TableCell>
                     <TableCell className="hidden text-sm lg:table-cell">
-                      {r.lastSeenAt ? <span className={stale ? "text-[oklch(0.55_0.15_60)]" : "text-muted-foreground"}><LocalTime value={r.lastSeenAt} mode="time" />{stale && " · no contact >1 min"}</span> : "—"}
+                      {r.lastSeenAt ? <span className={stale ? "text-warning-text" : "text-muted-foreground"}><LocalTime value={r.lastSeenAt} mode="time" />{stale && " · no contact >1 min"}</span> : "—"}
                     </TableCell>
                     <TableCell className="pr-5 text-right">
                       {r.incidentCount === 0 ? <span className="text-xs text-muted-foreground">None</span> : (
@@ -110,14 +110,14 @@ export default async function MonitorExamPage({ params }: { params: Promise<{ id
 
       <Card className="mt-6 shadow-none">
         <CardHeader>
-          <CardTitle className="text-base">Incident history</CardTitle>
+          <CardTitle className="text-base">Event history</CardTitle>
           <p className="flex items-start gap-2 text-sm text-muted-foreground">
             <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-            Indicators describe what the system observed (connectivity loss, reconnection, sync failures, reloads, repeated submits, deadline auto-submission). They are context for your review and do not by themselves establish misconduct.
+            Everything the server recorded during this examination, split into failure-resilience events and integrity indicators.
           </p>
         </CardHeader>
         <CardContent>
-          <IncidentList items={incidents.map((i) => ({ ...i, occurredAt: i.occurredAt.toISOString(), candidate: names.get(i.attemptId) ?? "Candidate" }))} />
+          <SplitIncidents items={incidents.map((i) => ({ ...i, occurredAt: i.occurredAt.toISOString(), candidate: names.get(i.attemptId) ?? "Candidate" }))} />
         </CardContent>
       </Card>
     </>

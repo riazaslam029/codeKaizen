@@ -58,7 +58,8 @@ export function useAnswerSync(opts: {
 
   const [answers, setAnswers] = useState<Record<string, LocalAnswer>>(opts.initial);
   const pending = useRef<Record<string, LocalAnswer>>({});
-  const [pendingCount, setPendingCount] = useState(0);
+  const [pendingIds, setPendingIds] = useState<ReadonlySet<string>>(() => new Set());
+  const pendingCount = pendingIds.size;
   const [status, setStatus] = useState<SyncStatus>("saved");
   const online = useSyncExternalStore(subscribeOnline, () => navigator.onLine, () => true);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -76,7 +77,7 @@ export function useAnswerSync(opts: {
 
   const persist = useCallback(() => {
     writeJSON(pendingKey, pending.current);
-    setPendingCount(Object.keys(pending.current).length);
+    setPendingIds(new Set(Object.keys(pending.current)));
   }, [pendingKey]);
 
   /* ── client events (queued while offline) ── */
@@ -250,5 +251,5 @@ export function useAnswerSync(opts: {
     void flushRef.current();
   }, []);
 
-  return { answers, update, flush, retryNow, status, pendingCount, online, lastSavedAt, retryAt };
+  return { answers, update, flush, retryNow, status, pendingCount, pendingIds, online, lastSavedAt, retryAt };
 }

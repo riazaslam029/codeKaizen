@@ -69,11 +69,11 @@ export default async function ExamResultsPage({ params }: { params: Promise<{ id
         </div>
       ) : (
         <>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
             <StatCard label="Results" value={stats.count} hint={`${stats.published} published · ${stats.awaitingGrading} awaiting grading`} icon={Users} />
-            <StatCard label="Average" value={`${stats.average}%`} hint={`Median ${stats.median}%`} icon={Percent} />
-            <StatCard label="Highest" value={`${stats.highest}%`} hint={`Lowest ${stats.lowest}%`} icon={Trophy} />
-            <StatCard label="Pass rate" value={`${stats.passRate}%`} hint={`${stats.passed} of ${stats.count} passed`} icon={CheckCircle2} />
+            <StatCard label="Average" value={`${stats.average}%`} hint={`Median ${stats.median}%`} icon={Percent} tone="info" />
+            <StatCard label="Highest" value={`${stats.highest}%`} hint={`Lowest ${stats.lowest}%`} icon={Trophy} tone="warning" />
+            <StatCard label="Pass rate" value={`${stats.passRate}%`} hint={`${stats.passed} of ${stats.count} passed`} icon={CheckCircle2} tone="success" />
           </div>
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
             <Card className="shadow-none">
@@ -124,7 +124,7 @@ export default async function ExamResultsPage({ params }: { params: Promise<{ id
                       <span className="block text-xs font-normal text-muted-foreground">{r.passed ? "Pass" : "Not passed"}</span>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      <span className={r.gradingStatus === "NEEDS_GRADING" ? "text-sm font-medium text-[oklch(0.45_0.12_70)]" : "text-sm"}>{GRADING[r.gradingStatus]!.label}</span>
+                      <span className={r.gradingStatus === "NEEDS_GRADING" ? "text-sm font-medium text-warning-text" : "text-sm"}>{GRADING[r.gradingStatus]!.label}</span>
                     </TableCell>
                     <TableCell>
                       <StatusBadge value={r.status === "PUBLISHED" ? "PUBLISHED" : r.status === "WITHHELD" ? "WITHHELD" : "PROVISIONAL"} />

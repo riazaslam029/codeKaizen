@@ -11,7 +11,7 @@ import { exams, results, users } from "@/db/schema";
 import { requireRole } from "@/lib/auth/dal";
 import { isAnswered } from "@/lib/scoring";
 import { AttemptService } from "@/services/attempts/attempt.service";
-import { IncidentList } from "../../monitoring/[id]/incident-list";
+import { SplitIncidents } from "../../monitoring/[id]/incident-list";
 import { GradeForm } from "./grade-form";
 
 export const metadata: Metadata = { title: "Attempt" };
@@ -96,8 +96,8 @@ export default async function AttemptReviewPage({ params }: { params: Promise<{ 
       </ol>
 
       <Card className="mt-6 shadow-none">
-        <CardHeader><CardTitle className="text-base">Indicators for this attempt</CardTitle></CardHeader>
-        <CardContent><IncidentList items={incidents.map((i) => ({ ...i, occurredAt: i.occurredAt.toISOString() }))} showCandidate={false} /></CardContent>
+        <CardHeader><CardTitle className="text-base">Events for this attempt</CardTitle></CardHeader>
+        <CardContent><SplitIncidents items={incidents.map((i) => ({ ...i, occurredAt: i.occurredAt.toISOString() }))} showCandidate={false} /></CardContent>
       </Card>
     </div>
   );

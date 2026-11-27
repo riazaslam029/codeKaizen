@@ -55,3 +55,34 @@ export function IncidentList({
     </ol>
   );
 }
+
+/** Things a browser/client can do that an examiner may want to review — never proof of misconduct. */
+const INTEGRITY = new Set(["TAB_SWITCH", "FULLSCREEN_EXIT", "COPY_PASTE", "MULTIPLE_SESSIONS", "DUPLICATE_SUBMISSION", "OTHER"]);
+
+type Item = Parameters<typeof IncidentList>[0]["items"][number];
+
+/** Separates failure-resilience events (connectivity, sync, recovery, deadline) from integrity indicators. */
+export function SplitIncidents({ items, showCandidate = true }: { items: Item[]; showCandidate?: boolean }) {
+  const technical = items.filter((i) => !INTEGRITY.has(i.type));
+  const integrity = items.filter((i) => INTEGRITY.has(i.type));
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <section aria-labelledby="tech-events">
+        <h3 id="tech-events" className="text-sm font-semibold">
+          Connectivity & technical events <span className="font-normal text-muted-foreground">({technical.length})</span>
+        </h3>
+        <p className="mb-3 text-xs text-muted-foreground">Connection loss, reconnection, sync retries, reloads and deadline handling. No time is ever added or removed.</p>
+        {technical.length ? <IncidentList items={technical} showCandidate={showCandidate} /> : <p className="text-sm text-muted-foreground">No technical events.</p>}
+      </section>
+      <section aria-labelledby="integrity-events">
+        <h3 id="integrity-events" className="text-sm font-semibold">
+          Integrity indicators <span className="font-normal text-muted-foreground">({integrity.length})</span>
+        </h3>
+        <p className="mb-3 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+          <strong className="text-foreground">Indicators are not evidence of misconduct.</strong> They show what the system observed so a person can review it in context.
+        </p>
+        {integrity.length ? <IncidentList items={integrity} showCandidate={showCandidate} /> : <p className="text-sm text-muted-foreground">No integrity indicators.</p>}
+      </section>
+    </div>
+  );
+}

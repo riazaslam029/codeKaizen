@@ -21,12 +21,12 @@ export default async function AdminOverviewPage() {
   return (
     <>
       <PageHeader title={`Welcome back, ${admin.name.split(" ")[0]}`} description="Platform health at a glance. All figures come from live records." />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Users" value={totalUsers} hint={`${roles.CANDIDATE} candidates · ${roles.EXAMINER} examiners`} icon={Users} />
-        <StatCard label="Examinations" value={stats.exams} hint={`${stats.liveExams} open right now`} icon={BookOpenCheck} />
-        <StatCard label="Active enrolments" value={stats.enrollments} icon={ClipboardList} />
-        <StatCard label="Attempts" value={stats.attempts} hint={`${stats.attemptsInProgress} in progress`} icon={Timer} />
-        <StatCard label="Unreviewed indicators" value={stats.openIncidents} hint="Connectivity & sync events" icon={AlertTriangle} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-5">
+        <StatCard label="Users" value={totalUsers} hint={`${roles.CANDIDATE} candidates · ${roles.EXAMINER} examiners`} icon={Users} tone="primary" />
+        <StatCard label="Examinations" value={stats.exams} hint={`${stats.liveExams} open right now`} icon={BookOpenCheck} tone="info" />
+        <StatCard label="Active enrolments" value={stats.enrollments} hint="Candidates enrolled in exams" icon={ClipboardList} tone="success" />
+        <StatCard label="Attempts" value={stats.attempts} hint={`${stats.attemptsInProgress} in progress`} icon={Timer} tone="warning" />
+        <StatCard label="Unreviewed indicators" value={stats.openIncidents} hint="Connectivity & sync events" icon={AlertTriangle} tone="danger" />
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_1fr]">

@@ -1,26 +1,71 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, PolarAngleAxis, RadialBar, RadialBarChart, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, ReferenceLine, PieChart, PolarAngleAxis, RadialBar, RadialBarChart, XAxis, YAxis } from "recharts";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 /** Daily platform activity (audit events + real attempts started). */
 export function ActivityChart({ data }: { data: { day: string; events: number; attempts: number }[] }) {
   const config = {
     events: { label: "Platform events", color: "var(--chart-1)" },
-    attempts: { label: "Attempts started", color: "var(--chart-5)" },
+    attempts: { label: "Attempts started", color: "var(--chart-4)" },
   } satisfies ChartConfig;
+  const total = data.reduce((a, d) => ({ e: a.e + d.events, t: a.t + d.attempts }), { e: 0, t: 0 });
   return (
-    <ChartContainer config={config} className="h-64 w-full">
-      <LineChart data={data} margin={{ left: 4, right: 12, top: 8 }} accessibilityLayer>
-        <CartesianGrid vertical={false} />
-        <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
-        <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <ChartLegend content={<ChartLegendContent />} />
-        <Line dataKey="events" type="monotone" stroke="var(--color-events)" strokeWidth={2} dot={false} />
-        <Line dataKey="attempts" type="monotone" stroke="var(--color-attempts)" strokeWidth={2} dot={false} />
-      </LineChart>
-    </ChartContainer>
+    <figure>
+      <ChartContainer config={config} className="h-64 w-full">
+        <AreaChart data={data} margin={{ left: 4, right: 12, top: 8 }} accessibilityLayer>
+          <defs>
+            <linearGradient id="fill-events" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-events)" stopOpacity={0.45} />
+              <stop offset="95%" stopColor="var(--color-events)" stopOpacity={0.02} />
+            </linearGradient>
+            <linearGradient id="fill-attempts" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-attempts)" stopOpacity={0.45} />
+              <stop offset="95%" stopColor="var(--color-attempts)" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} strokeDasharray="3 3" />
+          <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} minTickGap={16} />
+          <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} />
+          <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+          <ChartLegend content={<ChartLegendContent />} />
+          <Area dataKey="events" type="monotone" stroke="var(--color-events)" strokeWidth={2} fill="url(#fill-events)" />
+          <Area dataKey="attempts" type="monotone" stroke="var(--color-attempts)" strokeWidth={2} fill="url(#fill-attempts)" />
+        </AreaChart>
+      </ChartContainer>
+      <figcaption className="sr-only">
+        Over the last {data.length} days: {total.e} platform events and {total.t} attempts started.
+      </figcaption>
+    </figure>
+  );
+}
+
+/** Candidate's own published percentages over time, with the pass mark of each exam as hover detail. */
+export function PerformanceTrendChart({ data }: { data: { label: string; percentage: number; pass: number }[] }) {
+  const config = { percentage: { label: "Score %", color: "var(--chart-1)" } } satisfies ChartConfig;
+  const avg = data.length ? Math.round(data.reduce((a, d) => a + d.percentage, 0) / data.length) : 0;
+  return (
+    <figure>
+      <ChartContainer config={config} className="h-56 w-full">
+        <AreaChart data={data} margin={{ left: 4, right: 12, top: 8 }} accessibilityLayer>
+          <defs>
+            <linearGradient id="fill-perf" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-percentage)" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="var(--color-percentage)" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} strokeDasharray="3 3" />
+          <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
+          <YAxis domain={[0, 100]} tickLine={false} axisLine={false} width={32} unit="%" />
+          <ReferenceLine y={avg} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <Area dataKey="percentage" type="monotone" stroke="var(--color-percentage)" strokeWidth={2} fill="url(#fill-perf)" dot={{ r: 3 }} />
+        </AreaChart>
+      </ChartContainer>
+      <figcaption className="mt-2 text-xs text-muted-foreground">
+        {data.map((d) => `${d.label}: ${d.percentage}%`).join(" · ")} — dashed line is your average ({avg}%).
+      </figcaption>
+    </figure>
   );
 }
 

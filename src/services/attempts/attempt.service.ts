@@ -27,6 +27,8 @@ import { audit } from "@/services/audit";
 import { toCandidateQuestions } from "@/services/exams/candidate-view";
 import { GradingService } from "@/services/grading/grading.service";
 
+const CANDIDATE_TIMELINE: IncidentType[] = ["NETWORK_LOSS", "RECONNECTED", "SYNC_FAILED", "ATTEMPT_RESUMED", "LATE_ANSWER_REJECTED", "AUTO_SUBMITTED"];
+
 export { DEADLINE_GRACE_MS };
 
 type AttemptRow = typeof attempts.$inferSelect;
@@ -167,12 +169,14 @@ export class AttemptService {
       a = await this.loadOwned(actor, attemptId);
     }
 
+    let resumed = false;
     if (a.status === "IN_PROGRESS" && clientSession) {
       const isRecovery = a.clientSessionId !== null && a.clientSessionId !== clientSession;
       await db
         .update(attempts)
         .set({ clientSessionId: clientSession, lastSeenAt: new Date() })
         .where(eq(attempts.id, a.id));
+      resumed = isRecovery;
       if (isRecovery && !a.isSandbox) {
         await this.recordIncident(a, "ATTEMPT_RESUMED", "LOW", {
           note: "Workspace reloaded (refresh, crash or new tab). Deadline unchanged.",
@@ -198,6 +202,14 @@ export class AttemptService {
       .orderBy(desc(announcements.publishedAt))
       .limit(20);
 
+    // The candidate's own connectivity/recovery log (never integrity indicators).
+    const timeline = await db
+      .select({ id: incidents.id, type: incidents.type, occurredAt: incidents.occurredAt })
+      .from(incidents)
+      .where(and(eq(incidents.attemptId, a.id), inArray(incidents.type, CANDIDATE_TIMELINE)))
+      .orderBy(desc(incidents.occurredAt))
+      .limit(30);
+
     const questionsSafe = toCandidateQuestions(a.questionSnapshot);
     const answeredCount = saved.filter((s) => isAnswered(s.response)).length;
 
@@ -218,6 +230,8 @@ export class AttemptService {
       ),
       announcements: notices.map((n) => ({ ...n, publishedAt: n.publishedAt.toISOString() })),
       summary: { answered: answeredCount, total: questionsSafe.length },
+      resumed,
+      timeline: timeline.map((t) => ({ id: t.id, type: t.type, occurredAt: t.occurredAt.toISOString() })),
       // Sandbox previews show the examiner the auto-marked score immediately; real candidates never see it here.
       sandboxScore: a.isSandbox && a.status !== "IN_PROGRESS" ? await GradingService.previewScore(a.id) : null,
     };

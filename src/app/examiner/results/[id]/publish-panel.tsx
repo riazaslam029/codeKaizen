@@ -66,7 +66,7 @@ export function PublishPanel({ examId, check, lastPublished }: { examId: string;
         <ul className="space-y-1.5 text-sm" aria-label="Pre-publish checklist">
           {items.map((i) => (
             <li key={i.text} className="flex items-center gap-2">
-              {i.ok ? <CheckCircle2 className="size-4 text-success" aria-hidden /> : <CircleDot className="size-4 text-[oklch(0.5_0.13_65)]" aria-hidden />}
+              {i.ok ? <CheckCircle2 className="size-4 text-success" aria-hidden /> : <CircleDot className="size-4 text-warning-text" aria-hidden />}
               {i.text}
             </li>
           ))}
@@ -105,7 +105,7 @@ export function PublishPanel({ examId, check, lastPublished }: { examId: string;
                       {willPublish} candidate(s) will see their score and can download a verifiable PDF. Published grades are locked until withdrawn.
                     </p>
                     {override && (
-                      <p className="flex items-start gap-2 text-[oklch(0.45_0.12_70)]">
+                      <p className="flex items-start gap-2 text-warning-text">
                         <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden /> Includes {check.needsGrading} attempt(s) whose written answers are not graded.
                       </p>
                     )}

@@ -8,8 +8,13 @@ import {
   BookmarkCheck,
   CheckCircle2,
   CloudOff,
+  Cloud,
+  CloudUpload,
   FlaskConical,
+  History,
+  Keyboard,
   Loader2,
+  ShieldCheck,
   Megaphone,
   LogOut,
   NotebookPen,
@@ -69,6 +74,7 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
   const offset = useRef(0);
   const [expiresAt, setExpiresAt] = useState(Date.parse(initial.attempt.expiresAt));
   const [now, setNow] = useState(() => Date.parse(initial.serverNow));
+  const [restored, setRestored] = useState<{ leftMs: number; answered: number; total: number } | null>(null);
   const left = expiresAt - now;
   const onServerTime = useCallback((serverNow: string, exp: string) => {
     offset.current = Date.parse(serverNow) - Date.now();
@@ -82,6 +88,9 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
       const s = (await r.json()) as AttemptState;
       onServerTime(s.serverNow, s.attempt.expiresAt);
       setState(s);
+      if (s.resumed && s.attempt.status === "IN_PROGRESS") {
+        setRestored({ leftMs: Date.parse(s.attempt.expiresAt) - Date.parse(s.serverNow), answered: s.summary.answered, total: s.summary.total });
+      }
       return s;
     } catch {
       return null;
@@ -161,6 +170,42 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
   const [exitOpen, setExitOpen] = useState(false);
   const [exiting, setExiting] = useState(false);
   const router = useRouter();
+  const [helpOpen, setHelpOpen] = useState(false);
+
+  /* ── keyboard shortcuts (ignored while typing or when a dialog is open) ── */
+  const keys = useRef({ index, total: questions.length, q, a, update: sync.update, blocked: false });
+  useEffect(() => {
+    keys.current = { index, total: questions.length, q, a, update: sync.update, blocked: reviewOpen || exitOpen || scratchOpen || helpOpen };
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (t && (t.closest("input, textarea, select, [contenteditable=true]") || t.isContentEditable)) return;
+      const k = keys.current;
+      if (e.key === "?") {
+        e.preventDefault();
+        setHelpOpen((o) => !o);
+        return;
+      }
+      if (k.blocked) return;
+      const key = e.key.toLowerCase();
+      if (key === "n" && k.index < k.total - 1) setIndex(k.index + 1);
+      else if (key === "p" && k.index > 0) setIndex(k.index - 1);
+      else if (key === "f") k.update(k.q.questionId, { flagged: !k.a?.flagged });
+      else if (/^[1-9]$/.test(key) && k.q.options) {
+        const opt = k.q.options[Number(key) - 1];
+        if (!opt) return;
+        if (k.q.type === "MCQ_MULTI") {
+          const sel = k.a?.response && "optionIds" in k.a.response ? k.a.response.optionIds : [];
+          k.update(k.q.questionId, { response: { optionIds: sel.includes(opt.id) ? sel.filter((x) => x !== opt.id) : [...sel, opt.id] } });
+        } else k.update(k.q.questionId, { response: { optionIds: [opt.id] } });
+      } else return;
+      e.preventDefault();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   /** Save & exit: flush, then leave. The attempt stays IN_PROGRESS and the server timer keeps running. */
   const saveAndExit = async () => {
@@ -193,15 +238,20 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
     }
   };
 
-  const themeClass = prefs.theme === "dark" ? "dark" : prefs.theme === "contrast" ? "contrast" : "";
-  const timeTone = left <= 60_000 ? "text-destructive" : left <= 5 * 60_000 ? "text-[oklch(0.55_0.15_60)]" : "";
+  const themeClass = prefs.theme === "dark" ? "dark" : prefs.theme === "contrast" ? "light contrast" : "light";
+  const timeTone =
+    left <= 60_000
+      ? "border-destructive bg-destructive/12 text-destructive"
+      : left <= 5 * 60_000
+        ? "border-amber-500 bg-amber-500/15 text-amber-800 dark:text-amber-200"
+        : "";
   const announcedThreshold = useMemo(() => (left <= 60_000 ? "1 minute remaining" : left <= 5 * 60_000 ? "5 minutes remaining" : ""), [left]);
 
   /* ───────────────────────── finished ───────────────────────── */
   if (!isOpen) {
     return (
       <div className={cn("min-h-dvh bg-background text-foreground", themeClass)}>
-        <main className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center px-6 text-center">
+        <main id="main" tabIndex={-1} className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center px-6 text-center outline-none">
           <CheckCircle2 className="size-12 text-success" aria-hidden />
           <h1 className="mt-4 text-2xl font-semibold">{state.attempt.status === "AUTO_SUBMITTED" ? "Time is up — attempt submitted" : "Attempt submitted"}</h1>
           <p className="mt-2 text-muted-foreground">
@@ -241,12 +291,13 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
         {questions.map((x, i) => {
           const ans = sync.answers[x.questionId];
           const done = answered(ans);
+          const unsynced = sync.pendingIds.has(x.questionId);
           return (
             <li key={x.questionId}>
               <button
                 onClick={() => setIndex(i)}
                 aria-current={i === index ? "step" : undefined}
-                aria-label={`Question ${i + 1}: ${done ? "answered" : "unanswered"}${ans?.flagged ? ", marked for review" : ""}`}
+                aria-label={`Question ${i + 1}: ${done ? "answered" : "unanswered"}${ans?.flagged ? ", marked for review" : ""}${unsynced ? ", not yet synced" : ""}`}
                 className={cn(
                   "tabular relative flex h-9 w-full items-center justify-center rounded-md border text-sm font-medium transition-colors",
                   done ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted",
@@ -254,7 +305,8 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
                 )}
               >
                 {i + 1}
-                {ans?.flagged && <span className="absolute -top-1 -right-1 size-2.5 rounded-full border-2 border-background bg-warning" aria-hidden />}
+                {ans?.flagged && <Bookmark className="absolute -top-1.5 -right-1.5 size-3.5 fill-warning text-amber-700 dark:text-amber-300" aria-hidden />}
+                {unsynced && <CloudUpload className="absolute -right-1.5 -bottom-1.5 size-3.5 rounded-full bg-background text-amber-700 dark:text-amber-300" aria-hidden />}
               </button>
             </li>
           );
@@ -263,7 +315,8 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
       <ul className="space-y-1 text-xs text-muted-foreground">
         <li className="flex items-center gap-2"><span className="size-3 rounded-sm bg-primary" aria-hidden /> Answered</li>
         <li className="flex items-center gap-2"><span className="size-3 rounded-sm border bg-card" aria-hidden /> Not answered</li>
-        <li className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-warning" aria-hidden /> Marked for review ({flaggedCount})</li>
+        <li className="flex items-center gap-2"><Bookmark className="size-3 fill-warning text-amber-700 dark:text-amber-300" aria-hidden /> Marked for review ({flaggedCount})</li>
+        <li className="flex items-center gap-2"><CloudUpload className="size-3 text-amber-700 dark:text-amber-300" aria-hidden /> Saved on this device, syncing ({sync.pendingCount})</li>
       </ul>
     </nav>
   );
@@ -293,7 +346,7 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
           <SyncIndicator sync={sync} />
 
           <div className="ml-auto flex items-center gap-2">
-            <div className={cn("flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-base font-semibold tabular-nums", timeTone)} role="timer" aria-label={`Time remaining ${fmtClock(left)}`}>
+            <div className={cn("flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-base font-semibold tabular-nums transition-colors", timeTone)} role="timer" aria-label={`Time remaining ${fmtClock(left)}`}>
               <Timer className="size-4" aria-hidden />
               {fmtClock(left)}
             </div>
@@ -321,6 +374,32 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
                 )}
               </PopoverContent>
             </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="icon" aria-label="Connection and recovery log" className="hidden sm:inline-flex">
+                  <History className="size-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80">
+                <p className="text-sm font-semibold">Connection & recovery log</p>
+                <p className="mb-2 text-xs text-muted-foreground">Recorded by the server. Disruptions never add or remove time.</p>
+                {state.timeline.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No disruptions so far.</p>
+                ) : (
+                  <ol className="max-h-72 space-y-2 overflow-y-auto border-l pl-3">
+                    {state.timeline.map((t) => (
+                      <li key={t.id} className="text-sm">
+                        <p className="font-medium">{TIMELINE_LABEL[t.type] ?? t.type}</p>
+                        <LocalTime value={t.occurredAt} mode="time" className="text-xs text-muted-foreground" />
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </PopoverContent>
+            </Popover>
+            <Button variant="outline" size="icon" aria-label="Keyboard shortcuts (?)" className="hidden md:inline-flex" onClick={() => setHelpOpen(true)}>
+              <Keyboard className="size-4" />
+            </Button>
             <Button variant="outline" size="icon" aria-label="Open scratchpad" onClick={() => setScratchOpen(true)}>
               <NotebookPen className="size-4" />
             </Button>
@@ -363,7 +442,10 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
         <div className="border-b bg-warning/15" role="status">
           <p className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-2 text-sm">
             <WifiOff className="size-4 shrink-0" aria-hidden />
-            You are offline. Keep working — answers are kept on this device and will sync automatically. The timer keeps running on the server.
+            <span>
+              <strong>You are offline.</strong> Your answers are safe — they are kept on this device and sync automatically when the
+              connection returns. The server timer keeps running.
+            </span>
           </p>
         </div>
       )}
@@ -371,7 +453,7 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
       <div className={cn("mx-auto grid w-full max-w-7xl flex-1 gap-6 px-4 py-6", showSide ? "lg:grid-cols-[15rem_1fr]" : "max-w-3xl")}>
         {showSide && <aside className="hidden lg:block"><div className="sticky top-24">{navigator}</div></aside>}
 
-        <main className={cn("min-w-0", FONT[prefs.fontSize])}>
+        <main id="main" tabIndex={-1} className={cn("min-w-0 outline-none", FONT[prefs.fontSize])}>
           <div className="mb-3 flex items-center justify-between gap-2 text-sm text-muted-foreground">
             <span>
               Question <span className="tabular font-semibold text-foreground">{index + 1}</span> of {questions.length} · {q.marks} {q.marks === 1 ? "mark" : "marks"}
@@ -439,11 +521,14 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
                 {a?.flagged ? <BookmarkCheck className="size-4" aria-hidden /> : <Bookmark className="size-4" aria-hidden />}
                 {a?.flagged ? "Marked for review" : "Mark for review"}
               </Button>
-              {answered(a) && (
-                <Button variant="ghost" size="sm" onClick={() => sync.update(q.questionId, { response: null })}>
-                  Clear answer
-                </Button>
-              )}
+              <span className="ml-auto flex items-center gap-3">
+                <AnswerSaveState pending={sync.pendingIds.has(q.questionId)} online={sync.online} hasAnswer={!!a} />
+                {answered(a) && (
+                  <Button variant="ghost" size="sm" onClick={() => sync.update(q.questionId, { response: null })}>
+                    Clear answer
+                  </Button>
+                )}
+              </span>
             </div>
           </article>
 
@@ -537,6 +622,43 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
         </DialogContent>
       </Dialog>
 
+      <Dialog open={!!restored} onOpenChange={(o) => !o && setRestored(null)}>
+        <DialogContent className={cn("sm:max-w-md", themeClass)}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="size-5 text-success" aria-hidden /> Attempt restored — no time was added
+            </DialogTitle>
+            <DialogDescription>
+              We picked up where you left off. {restored?.answered} of {restored?.total} answers are safely on the server, and any answers
+              saved on this device are syncing now. Your deadline is set by the server and did not change:{" "}
+              <strong className="text-foreground">{fmtClock(restored?.leftMs ?? 0)}</strong> left.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setRestored(null)}>Continue the examination</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
+        <DialogContent className={cn("sm:max-w-sm", themeClass)}>
+          <DialogHeader>
+            <DialogTitle>Keyboard shortcuts</DialogTitle>
+            <DialogDescription>Shortcuts are paused while you type in an answer box.</DialogDescription>
+          </DialogHeader>
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+            {SHORTCUTS.map(([k, d]) => (
+              <div key={k} className="contents">
+                <dt>
+                  <kbd className="rounded border bg-muted px-1.5 py-0.5 font-mono text-xs">{k}</kbd>
+                </dt>
+                <dd className="text-muted-foreground">{d}</dd>
+              </div>
+            ))}
+          </dl>
+        </DialogContent>
+      </Dialog>
+
       <Scratchpad attemptId={attemptId} open={scratchOpen} onOpenChange={setScratchOpen} readOnly={!isOpen} />
     </div>
   );
@@ -565,6 +687,46 @@ function WrittenAnswer({ value, onChange, long }: { value: string; onChange: (v:
   );
 }
 
+const PILL = {
+  online: { label: "Online", cls: "bg-success/12 text-success" },
+  unstable: { label: "Unstable", cls: "bg-amber-500/15 text-amber-800 dark:text-amber-200" },
+  reconnecting: { label: "Reconnecting", cls: "bg-chart-2/15 text-foreground" },
+  offline: { label: "Offline", cls: "bg-destructive/10 text-destructive" },
+} as const;
+
+const SHORTCUTS = [
+  ["N", "Next question"],
+  ["P", "Previous question"],
+  ["1 - 9", "Choose option 1 - 9"],
+  ["F", "Mark / unmark for review"],
+  ["?", "Show this help"],
+  ["Tab", "Move between controls"],
+] as const;
+
+const TIMELINE_LABEL: Record<string, string> = {
+  NETWORK_LOSS: "Connection lost",
+  RECONNECTED: "Reconnected, answers synced",
+  SYNC_FAILED: "Saving failed repeatedly (retried automatically)",
+  ATTEMPT_RESUMED: "Attempt restored after reload or new tab",
+  LATE_ANSWER_REJECTED: "Answers after the deadline were not accepted",
+  AUTO_SUBMITTED: "Auto-submitted at the deadline",
+};
+
+function AnswerSaveState({ pending, online, hasAnswer }: { pending: boolean; online: boolean; hasAnswer: boolean }) {
+  if (!hasAnswer) return null;
+  if (pending)
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-amber-800 dark:text-amber-200">
+        <CloudUpload className="size-3.5" aria-hidden /> {online ? "Saving to server…" : "Saved on this device, will sync"}
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center gap-1 text-xs text-success">
+      <Cloud className="size-3.5" aria-hidden /> Saved to server
+    </span>
+  );
+}
+
 function SyncIndicator({ sync }: { sync: ReturnType<typeof useAnswerSync> }) {
   const [clock, setClock] = useState(0);
   useEffect(() => {
@@ -581,17 +743,24 @@ function SyncIndicator({ sync }: { sync: ReturnType<typeof useAnswerSync> }) {
     icon = <WifiOff className="size-4 text-destructive" aria-hidden />;
     text = `Offline · ${sync.pendingCount} answer(s) waiting to sync`;
   } else if (sync.status === "retrying") {
-    icon = <AlertTriangle className="size-4 text-[oklch(0.55_0.15_60)]" aria-hidden />;
+    icon = <AlertTriangle className="size-4 text-warning-text" aria-hidden />;
     text = `Sync failed · ${sync.pendingCount} pending · retrying in ${retryIn}s`;
   } else if (sync.status === "closed") {
     icon = <AlertTriangle className="size-4 text-destructive" aria-hidden />;
     text = "Attempt closed";
   }
+  const conn: keyof typeof PILL = !sync.online ? "offline" : sync.status === "offline" ? "reconnecting" : sync.status === "retrying" ? "unstable" : "online";
   return (
     <div className="flex items-center gap-2 text-sm" role="status" aria-live="polite">
-      <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium", sync.online ? "bg-success/12 text-success" : "bg-destructive/10 text-destructive")}>
-        {sync.online ? <Wifi className="size-3" aria-hidden /> : <WifiOff className="size-3" aria-hidden />}
-        {sync.online ? "Online" : "Offline"}
+      <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium", PILL[conn].cls)}>
+        {conn === "offline" ? (
+          <WifiOff className="size-3" aria-hidden />
+        ) : conn === "reconnecting" ? (
+          <RefreshCw className="size-3 animate-spin motion-reduce:animate-none" aria-hidden />
+        ) : (
+          <Wifi className="size-3" aria-hidden />
+        )}
+        {PILL[conn].label}
       </span>
       {icon}
       <span className="text-muted-foreground">{text}</span>

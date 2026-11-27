@@ -16,7 +16,7 @@ async function go(formData: FormData) {
 /** Public page — no sign-in. Confirms a printed report's verification code. */
 export default function VerifyPage() {
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-background px-5">
+    <main id="main" className="flex min-h-dvh items-center justify-center bg-background px-5">
       <div className="w-full max-w-md">
         <Brand className="mb-8" />
         <h1 className="text-2xl font-semibold">Verify a result report</h1>

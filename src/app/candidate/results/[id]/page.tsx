@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Result" };
 
 const OUTCOME = {
   correct: { icon: CheckCircle2, label: "Correct", cls: "text-success" },
-  partial: { icon: CircleMinus, label: "Partly correct", cls: "text-[oklch(0.5_0.13_65)]" },
+  partial: { icon: CircleMinus, label: "Partly correct", cls: "text-warning-text" },
   incorrect: { icon: XCircle, label: "Incorrect", cls: "text-destructive" },
   skipped: { icon: CircleDashed, label: "Skipped", cls: "text-muted-foreground" },
 } as const;

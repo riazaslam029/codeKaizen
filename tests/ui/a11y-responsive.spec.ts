@@ -30,21 +30,25 @@ async function open(page: Page, role: (typeof PAGES)[number]["role"], path: stri
   await page.waitForLoadState("networkidle");
 }
 
-test.describe("accessibility (axe: no serious or critical violations)", () => {
-  for (const p of PAGES) {
-    test(p.name, async ({ page }) => {
-      const errors: string[] = [];
-      page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
-      // Reduced motion: the app disables entrance animations, so axe never samples a half-faded element.
-      await page.emulateMedia({ reducedMotion: "reduce" });
-      await open(page, p.role, p.path);
-      const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
-      const bad = r.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
-      expect(bad.map((v) => `${v.id}: ${v.help} (${v.nodes.length}) → ${v.nodes[0]?.target.join(" ")}`)).toEqual([]);
-      expect(errors, "browser console errors").toEqual([]);
-    });
-  }
-});
+for (const scheme of ["light", "dark"] as const) {
+  test.describe(`accessibility, ${scheme} theme (axe: no serious or critical violations)`, () => {
+    for (const p of PAGES) {
+      test(p.name, async ({ page }) => {
+        const errors: string[] = [];
+        page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+        // Reduced motion: the app disables entrance animations, so axe never samples a half-faded element.
+        // The app defaults to the "system" theme, so emulating the colour scheme exercises both palettes.
+        await page.emulateMedia({ reducedMotion: "reduce", colorScheme: scheme });
+        await open(page, p.role, p.path);
+        expect(await page.evaluate(() => document.documentElement.classList.contains("dark"))).toBe(scheme === "dark");
+        const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+        const bad = r.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+        expect(bad.map((v) => `${v.id}: ${v.help} (${v.nodes.length}) → ${v.nodes[0]?.target.join(" ")}`)).toEqual([]);
+        expect(errors, "browser console errors").toEqual([]);
+      });
+    }
+  });
+}
 
 test.describe("responsive layout: no horizontal overflow", () => {
   for (const vp of [
@@ -81,6 +85,9 @@ test.describe("responsive layout: no horizontal overflow", () => {
 test.describe("keyboard", () => {
   test("login form is fully operable by keyboard with visible focus", async ({ page }) => {
     await page.goto("/login");
+    await page.keyboard.press("Tab");
+    // First stop is the "Skip to main content" link, then the form.
+    expect(await page.evaluate(() => document.activeElement?.textContent)).toContain("Skip to main content");
     await page.keyboard.press("Tab");
     const focused = await page.evaluate(() => document.activeElement?.getAttribute("id") ?? document.activeElement?.tagName);
     expect(["email", "password"]).toContain(focused);

@@ -5,10 +5,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Brand } from "./brand";
-import type { NavItem } from "./nav-config";
+import type { NavGroup } from "./nav-config";
 import { SidebarNav } from "./sidebar-nav";
 
-export function MobileNav({ items, sectionLabel }: { items: NavItem[]; sectionLabel: string }) {
+export function MobileNav({ groups, sectionLabel }: { groups: NavGroup[]; sectionLabel: string }) {
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -26,10 +26,8 @@ export function MobileNav({ items, sectionLabel }: { items: NavItem[]; sectionLa
           </SheetTitle>
         </SheetHeader>
         <nav aria-label="Main" className="px-3 py-4">
-          <p className="px-3 pb-2 font-mono text-[10px] uppercase tracking-[0.16em] text-sidebar-foreground/90">
-            {sectionLabel}
-          </p>
-          <SidebarNav items={items} onNavigate={() => setOpen(false)} />
+          <p className="sr-only">{sectionLabel}</p>
+          <SidebarNav groups={groups} onNavigate={() => setOpen(false)} />
         </nav>
       </SheetContent>
     </Sheet>

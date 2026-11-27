@@ -17,19 +17,19 @@ const TONES: Record<string, string> = {
   BLOCKED: "bg-destructive/10 text-destructive",
   // attempts
   IN_PROGRESS: "bg-success/12 text-success",
-  SUBMITTED: "bg-warning/15 text-[oklch(0.45_0.12_70)]",
-  AUTO_SUBMITTED: "bg-warning/15 text-[oklch(0.45_0.12_70)]",
+  SUBMITTED: "bg-warning/15 text-warning-text",
+  AUTO_SUBMITTED: "bg-warning/15 text-warning-text",
   GRADED: "bg-accent text-accent-foreground",
   INVALIDATED: "bg-destructive/10 text-destructive",
   NOT_STARTED: "bg-muted text-muted-foreground",
   // results
   PROVISIONAL: "bg-muted text-muted-foreground",
-  WITHHELD: "bg-warning/15 text-[oklch(0.45_0.12_70)]",
+  WITHHELD: "bg-warning/15 text-warning-text",
   PASS: "bg-success/12 text-success",
   FAIL: "bg-destructive/10 text-destructive",
   // severities
   LOW: "bg-muted text-muted-foreground",
-  MEDIUM: "bg-warning/15 text-[oklch(0.45_0.12_70)]",
+  MEDIUM: "bg-warning/15 text-warning-text",
   HIGH: "bg-destructive/10 text-destructive",
   // accounts
   ACTIVE_ACCOUNT: "bg-success/12 text-success",

@@ -9,7 +9,7 @@ export const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "tests",
-  testMatch: ["e2e/**/*.spec.ts", "security/**/*.spec.ts", "ui/**/*.spec.ts"],
+  testMatch: process.env.AUDIT ? ["visual/**/*.spec.ts"] : ["e2e/**/*.spec.ts", "security/**/*.spec.ts", "ui/**/*.spec.ts"],
   globalSetup: "./tests/e2e/global-setup.ts",
   globalTeardown: "./tests/e2e/global-teardown.ts",
   fullyParallel: false,

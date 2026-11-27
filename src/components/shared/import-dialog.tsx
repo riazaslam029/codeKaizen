@@ -159,7 +159,7 @@ export function ImportDialog({
               <div className="flex flex-wrap gap-2 text-sm">
                 <span className="font-medium">{file?.name}</span>
                 <span className="rounded bg-success/12 px-2 text-success">{validCount} valid</span>
-                <span className="rounded bg-warning/15 px-2 text-[oklch(0.45_0.12_70)]">{summary.duplicates.length} duplicate</span>
+                <span className="rounded bg-warning/15 px-2 text-warning-text">{summary.duplicates.length} duplicate</span>
                 <span className="rounded bg-destructive/10 px-2 text-destructive">{new Set(summary.errors.map((e) => e.row)).size} with errors</span>
                 {summary.committed && <span className="rounded bg-accent px-2 text-accent-foreground">Imported {summary.created}</span>}
               </div>
@@ -187,7 +187,7 @@ export function ImportDialog({
                               {p.status === "valid" ? (
                                 <span className="inline-flex items-center gap-1 text-success"><CheckCircle2 className="size-3.5" aria-hidden /> Valid</span>
                               ) : p.status === "duplicate" ? (
-                                <span className="inline-flex items-center gap-1 text-[oklch(0.45_0.12_70)]"><Copy className="size-3.5" aria-hidden /> Duplicate</span>
+                                <span className="inline-flex items-center gap-1 text-warning-text"><Copy className="size-3.5" aria-hidden /> Duplicate</span>
                               ) : (
                                 <span className="inline-flex items-center gap-1 text-destructive"><XCircle className="size-3.5" aria-hidden /> Error</span>
                               )}

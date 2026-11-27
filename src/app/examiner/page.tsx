@@ -32,10 +32,10 @@ export default async function ExaminerOverview() {
         description="Your examinations, live attempts and grading work."
         actions={<Button asChild><Link href="/examiner/exams/new"><Plus className="size-4" aria-hidden /> New examination</Link></Button>}
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Examinations" value={overview.exams} hint={`${overview.live} open now`} icon={BookOpenCheck} />
-        <StatCard label="Attempts in progress" value={overview.inProgress} icon={Radio} />
-        <StatCard label="Awaiting manual grading" value={pendingGrading} hint="Attempts with written answers" icon={PenLine} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <StatCard label="Examinations" value={overview.exams} hint={`${overview.live} open now`} icon={BookOpenCheck} tone="info" />
+        <StatCard label="Attempts in progress" value={overview.inProgress} hint="Live on the server clock" icon={Radio} tone="success" />
+        <StatCard label="Awaiting manual grading" value={pendingGrading} hint="Attempts with written answers" icon={PenLine} tone="warning" />
         <StatCard label="Unpublished results" value={overview.unpublished} hint={`${overview.submitted} attempts submitted`} icon={Trophy} />
       </div>
 

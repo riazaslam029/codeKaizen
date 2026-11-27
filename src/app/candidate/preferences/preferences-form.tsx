@@ -26,7 +26,7 @@ export function PreferencesForm({ initial }: { initial: WorkspacePreferences }) 
       <Card className="shadow-none"><CardContent><PreferencesControls value={prefs} onChange={setPrefs} /></CardContent></Card>
       <div>
         <p className="mb-2 text-sm font-medium">Preview</p>
-        <div className={cn("rounded-lg border bg-background p-5 text-foreground", prefs.theme === "dark" && "dark", prefs.theme === "contrast" && "contrast")}>
+        <div className={cn("rounded-lg border bg-background p-5 text-foreground", prefs.theme === "dark" ? "dark" : prefs.theme === "contrast" ? "light contrast" : "light")}>
           <div className={cn("rounded-md border bg-card p-4", SIZE[prefs.fontSize])}>
             <p className="leading-relaxed">Which cookie attribute prevents client-side JavaScript from reading a session cookie?</p>
             <div className="mt-3 space-y-2">

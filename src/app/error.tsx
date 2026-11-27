@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 /** Route-level error boundary: friendly message + retry. No stack traces or internals are shown. */
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <main className="flex min-h-[60dvh] flex-col items-center justify-center px-6 text-center" role="alert">
+    <main id="main" className="flex min-h-[60dvh] flex-col items-center justify-center px-6 text-center" role="alert">
       <span className="rounded-full bg-destructive/10 p-3 text-destructive">
         <TriangleAlert className="size-6" aria-hidden />
       </span>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-6 text-center">
+    <main id="main" className="flex min-h-dvh flex-col items-center justify-center bg-background px-6 text-center">
       <Brand className="mb-10" />
       <span className="rounded-full bg-accent p-3 text-accent-foreground">
         <FileQuestion className="size-6" aria-hidden />

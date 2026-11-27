@@ -139,7 +139,7 @@ export function LoginForm({ demo }: { demo?: { label: string; email: string; pas
           </button>
         </div>
         {capsLock && (
-          <p id="caps-hint" className="flex items-center gap-1.5 text-xs text-[oklch(0.5_0.13_65)]">
+          <p id="caps-hint" className="flex items-center gap-1.5 text-xs text-warning-text">
             <ArrowBigUp className="size-3.5" aria-hidden /> Caps Lock is on
           </p>
         )}
