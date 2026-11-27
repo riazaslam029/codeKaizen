@@ -1,5 +1,6 @@
 import "server-only";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, type PDFFont, type PDFPage, rgb, StandardFonts } from "pdf-lib";
+import QRCode from "qrcode";
 
 export type ReportData = {
   verificationCode: string;
@@ -21,45 +22,49 @@ const NAVY = rgb(0.09, 0.12, 0.2);
 const BLUE = rgb(0.16, 0.36, 0.75);
 const MUTED = rgb(0.42, 0.45, 0.52);
 const LINE = rgb(0.88, 0.9, 0.93);
+const A4: [number, number] = [595.28, 841.89];
+const M = 56;
 
-const fmt = (d: Date) =>
-  new Intl.DateTimeFormat("en-GB", { dateStyle: "long", timeStyle: "short", timeZone: "UTC" }).format(d) + " UTC";
+const fmt = (d: Date) => new Intl.DateTimeFormat("en-GB", { dateStyle: "long", timeStyle: "short", timeZone: "UTC" }).format(d) + " UTC";
 
-/** Generates a one-page A4 result report (real PDF bytes, standard fonts, no external services). */
+/** Latin-1 only (standard PDF fonts): replace anything else so user-entered text never breaks rendering. */
+const safe = (s: string) => s.replace(/[–—]/g, "-").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[^\x20-\x7E\xA0-\xFF]/g, "?");
+
+function header(page: PDFPage, bold: PDFFont, regular: PDFFont, subtitle: string) {
+  const { width, height } = page.getSize();
+  page.drawRectangle({ x: 0, y: height - 120, width, height: 120, color: NAVY });
+  page.drawRectangle({ x: M, y: height - 74, width: 22, height: 22, color: BLUE });
+  page.drawText("CodeKaizen Exams", { x: M + 32, y: height - 68, size: 15, font: bold, color: rgb(1, 1, 1) });
+  page.drawText(subtitle, { x: M, y: height - 100, size: 10, font: regular, color: rgb(0.78, 0.82, 0.9) });
+}
+
+/** One-page A4 candidate result report with a scannable QR code linking to the public verification page. */
 export async function renderResultPdf(r: ReportData): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
-  pdf.setTitle(`Result report — ${r.examCode}`);
+  pdf.setTitle(`Result report - ${r.examCode}`);
   pdf.setAuthor("CodeKaizen Exams");
   pdf.setSubject(`Verification ${r.verificationCode}`);
-  const page = pdf.addPage([595.28, 841.89]);
+  const page = pdf.addPage(A4);
   const { width, height } = page.getSize();
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const mono = await pdf.embedFont(StandardFonts.Courier);
-  const M = 56;
-
-  // Header band
-  page.drawRectangle({ x: 0, y: height - 120, width, height: 120, color: NAVY });
-  page.drawRectangle({ x: M, y: height - 74, width: 22, height: 22, color: BLUE });
-  page.drawText("CodeKaizen Exams", { x: M + 32, y: height - 68, size: 15, font: bold, color: rgb(1, 1, 1) });
-  page.drawText("Official examination result report", { x: M, y: height - 100, size: 10, font: regular, color: rgb(0.78, 0.82, 0.9) });
+  header(page, bold, regular, "Official examination result report");
 
   let y = height - 170;
-  page.drawText(r.examTitle, { x: M, y, size: 18, font: bold, color: NAVY, maxWidth: width - 2 * M });
+  page.drawText(safe(r.examTitle), { x: M, y, size: 18, font: bold, color: NAVY, maxWidth: width - 2 * M });
   y -= 20;
-  page.drawText(`Examination code ${r.examCode}`, { x: M, y, size: 10, font: regular, color: MUTED });
+  page.drawText(`Examination code ${safe(r.examCode)}`, { x: M, y, size: 10, font: regular, color: MUTED });
 
-  // Outcome block
   y -= 50;
   page.drawRectangle({ x: M, y: y - 70, width: width - 2 * M, height: 90, borderColor: LINE, borderWidth: 1, color: rgb(0.975, 0.98, 0.99) });
   page.drawText(`${r.percentage.toFixed(2)}%`, { x: M + 20, y: y - 22, size: 30, font: bold, color: NAVY });
   page.drawText(`${r.score} / ${r.maxScore} marks`, { x: M + 20, y: y - 50, size: 11, font: regular, color: MUTED });
   const outcome = r.passed ? "PASS" : "NOT PASSED";
-  page.drawText(outcome, { x: width - M - 20 - bold.widthOfTextAtSize(outcome, 16), y: y - 22, size: 16, font: bold, color: r.passed ? rgb(0.1, 0.5, 0.33) : rgb(0.7, 0.2, 0.15) });
+  page.drawText(outcome, { x: width - M - 20 - bold.widthOfTextAtSize(outcome, 16), y: y - 22, size: 16, font: bold, color: r.passed ? rgb(0.1, 0.45, 0.3) : rgb(0.7, 0.2, 0.15) });
   const req = `Pass mark ${r.passPercentage}%`;
   page.drawText(req, { x: width - M - 20 - regular.widthOfTextAtSize(req, 10), y: y - 50, size: 10, font: regular, color: MUTED });
 
-  // Details table
   y -= 120;
   const rows: [string, string][] = [
     ["Candidate", r.candidateName],
@@ -68,30 +73,149 @@ export async function renderResultPdf(r: ReportData): Promise<Uint8Array> {
     ["Total marks", String(r.maxScore)],
     ["Marks obtained", String(r.score)],
     ["Percentage", `${r.percentage.toFixed(2)}%`],
-    ["Submitted", r.submittedAt ? fmt(r.submittedAt) : "—"],
+    ["Submitted", r.submittedAt ? fmt(r.submittedAt) : "-"],
     ["Published", fmt(r.publishedAt)],
   ];
   for (const [k, v] of rows) {
     page.drawText(k, { x: M, y, size: 10, font: regular, color: MUTED });
-    page.drawText(v, { x: M + 140, y, size: 10.5, font: bold, color: NAVY, maxWidth: width - 2 * M - 140 });
+    page.drawText(safe(v), { x: M + 140, y, size: 10.5, font: bold, color: NAVY, maxWidth: width - 2 * M - 140 });
     y -= 10;
     page.drawLine({ start: { x: M, y }, end: { x: width - M, y }, thickness: 0.6, color: LINE });
     y -= 18;
   }
 
-  // Verification
-  y -= 20;
+  // Verification block with QR code
+  y -= 16;
+  const qr = await pdf.embedPng(await QRCode.toBuffer(r.verifyUrl, { type: "png", margin: 1, width: 300, errorCorrectionLevel: "M" }));
+  const qrSize = 104;
+  page.drawImage(qr, { x: width - M - qrSize, y: y - qrSize + 12, width: qrSize, height: qrSize });
   page.drawText("Verification", { x: M, y, size: 12, font: bold, color: NAVY });
   y -= 22;
   page.drawText(r.verificationCode, { x: M, y, size: 16, font: mono, color: BLUE });
   y -= 20;
-  page.drawText("Confirm this report is genuine at:", { x: M, y, size: 10, font: regular, color: MUTED });
+  page.drawText("Scan the QR code or visit:", { x: M, y, size: 10, font: regular, color: MUTED });
   y -= 15;
-  page.drawText(r.verifyUrl, { x: M, y, size: 10, font: regular, color: BLUE });
+  page.drawText(r.verifyUrl, { x: M, y, size: 9.5, font: regular, color: BLUE, maxWidth: width - 2 * M - qrSize - 16 });
 
   page.drawText(
-    "Generated by CodeKaizen Exams. The verification page shows only the minimum details needed to confirm authenticity.",
+    "Generated by CodeKaizen Exams. The public verification page confirms only the exam, issue date and validity - never personal data.",
     { x: M, y: 40, size: 8, font: regular, color: MUTED, maxWidth: width - 2 * M },
+  );
+  return pdf.save();
+}
+
+export type ExamReportData = {
+  examCode: string;
+  examTitle: string;
+  window: string;
+  totalMarks: number;
+  passPercentage: number;
+  generatedBy: string;
+  stats: { count: number; average: number; median: number; highest: number; lowest: number; passRate: number; published: number; awaitingGrading: number };
+  distribution: { range: string; count: number }[];
+  rows: { name: string; score: number; maxScore: number; percentage: number; passed: boolean; status: string }[];
+  questions: { label: string; prompt: string; correctRate: number; skipRate: number; difficulty: string }[];
+};
+
+/** Multi-page examiner report: summary statistics, score distribution, candidate table and question analytics. */
+export async function renderExamReportPdf(d: ExamReportData): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create();
+  pdf.setTitle(`Examination report - ${d.examCode}`);
+  pdf.setAuthor("CodeKaizen Exams");
+  const regular = await pdf.embedFont(StandardFonts.Helvetica);
+  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  let page = pdf.addPage(A4);
+  const { width, height } = page.getSize();
+  header(page, bold, regular, "Examination report - examiner copy, confidential");
+  let y = height - 165;
+  const newPage = () => {
+    page = pdf.addPage(A4);
+    y = height - M;
+  };
+  const ensure = (h: number) => {
+    if (y - h < 60) newPage();
+  };
+  const text = (t: string, x: number, size = 10, font = regular, color = NAVY, maxWidth?: number) => page.drawText(safe(t), { x, y, size, font, color, maxWidth });
+
+  text(d.examTitle, M, 18, bold);
+  y -= 18;
+  text(`${d.examCode}  -  ${d.window}  -  ${d.totalMarks} marks  -  pass ${d.passPercentage}%`, M, 10, regular, MUTED);
+  y -= 34;
+
+  const s = d.stats;
+  const cards: [string, string][] = [
+    ["Results", String(s.count)],
+    ["Average", `${s.average}%`],
+    ["Median", `${s.median}%`],
+    ["Pass rate", `${s.passRate}%`],
+    ["Highest", `${s.highest}%`],
+    ["Lowest", `${s.lowest}%`],
+  ];
+  const cw = (width - 2 * M - 5 * 8) / 6;
+  cards.forEach(([k, v], i) => {
+    const x = M + i * (cw + 8);
+    page.drawRectangle({ x, y: y - 40, width: cw, height: 48, color: rgb(0.965, 0.972, 0.985), borderColor: LINE, borderWidth: 0.8 });
+    page.drawText(k, { x: x + 8, y: y - 6, size: 8, font: regular, color: MUTED });
+    page.drawText(v, { x: x + 8, y: y - 28, size: 14, font: bold, color: NAVY });
+  });
+  y -= 64;
+  text(`${s.published} published - ${s.awaitingGrading} awaiting grading`, M, 9, regular, MUTED);
+  y -= 30;
+
+  // Distribution bars
+  text("Score distribution (%)", M, 12, bold);
+  y -= 18;
+  const maxC = Math.max(1, ...d.distribution.map((b) => b.count));
+  for (const b of d.distribution) {
+    text(b.range, M, 9, regular, MUTED);
+    const w = ((width - 2 * M - 90) * b.count) / maxC;
+    if (w > 0) page.drawRectangle({ x: M + 60, y: y - 2, width: w, height: 9, color: BLUE });
+    page.drawText(String(b.count), { x: M + 66 + w, y, size: 9, font: regular, color: NAVY });
+    y -= 14;
+  }
+  y -= 18;
+
+  // Candidate table
+  ensure(60);
+  text("Candidates", M, 12, bold);
+  y -= 18;
+  const cols = [M, M + 210, M + 290, M + 350, M + 410];
+  ["Candidate", "Marks", "%", "Outcome", "Status"].forEach((h, i) => page.drawText(h, { x: cols[i]!, y, size: 9, font: bold, color: MUTED }));
+  y -= 6;
+  page.drawLine({ start: { x: M, y }, end: { x: width - M, y }, thickness: 0.6, color: LINE });
+  y -= 13;
+  for (const r of d.rows) {
+    ensure(16);
+    page.drawText(safe(r.name).slice(0, 38), { x: cols[0]!, y, size: 9, font: regular, color: NAVY });
+    page.drawText(`${r.score}/${r.maxScore}`, { x: cols[1]!, y, size: 9, font: regular, color: NAVY });
+    page.drawText(r.percentage.toFixed(1), { x: cols[2]!, y, size: 9, font: regular, color: NAVY });
+    page.drawText(r.passed ? "Pass" : "Not passed", { x: cols[3]!, y, size: 9, font: regular, color: NAVY });
+    page.drawText(r.status, { x: cols[4]!, y, size: 9, font: regular, color: MUTED });
+    y -= 14;
+  }
+  if (d.rows.length === 0) {
+    text("No submitted attempts yet.", M, 9, regular, MUTED);
+    y -= 14;
+  }
+  y -= 18;
+
+  // Question analytics
+  ensure(60);
+  text("Question analytics (real submissions)", M, 12, bold);
+  y -= 18;
+  for (const q of d.questions) {
+    ensure(28);
+    page.drawText(`${q.label}`, { x: M, y, size: 9, font: bold, color: NAVY });
+    page.drawText(safe(q.prompt).slice(0, 90), { x: M + 30, y, size: 9, font: regular, color: NAVY });
+    y -= 12;
+    page.drawText(`Correct ${q.correctRate}%  -  Skipped ${q.skipRate}%  -  ${q.difficulty}`, { x: M + 30, y, size: 8.5, font: regular, color: MUTED });
+    y -= 16;
+  }
+  if (d.questions.length === 0) text("No submissions yet.", M, 9, regular, MUTED);
+
+  const pages = pdf.getPages();
+  pages.forEach((p, i) =>
+    p.drawText(`Generated by ${safe(d.generatedBy)} - page ${i + 1} of ${pages.length} - sandbox previews excluded`, { x: M, y: 30, size: 8, font: regular, color: MUTED }),
   );
   return pdf.save();
 }

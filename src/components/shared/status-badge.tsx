@@ -24,7 +24,7 @@ const TONES: Record<string, string> = {
   NOT_STARTED: "bg-muted text-muted-foreground",
   // results
   PROVISIONAL: "bg-muted text-muted-foreground",
-  WITHHELD: "bg-destructive/10 text-destructive",
+  WITHHELD: "bg-warning/15 text-[oklch(0.45_0.12_70)]",
   PASS: "bg-success/12 text-success",
   FAIL: "bg-destructive/10 text-destructive",
   // severities
@@ -48,6 +48,7 @@ const LABELS: Record<string, string> = {
   PROVISIONAL: "Unpublished",
   FAIL: "Not passed",
   ACTIVE_ACCOUNT: "Active",
+  WITHHELD: "Withdrawn",
 };
 
 export function StatusBadge({ value, className }: { value: string; className?: string }) {

@@ -89,12 +89,12 @@ describe("manual grading", () => {
 describe("publication, reports and verification", () => {
   it("publishes only graded results, issues unique codes and locks grades", async () => {
     const pub = await GradingService.publishResults(w.users.ex1, examId);
-    expect(pub).toEqual({ published: 2, awaitingGrading: 0 });
+    expect(pub).toEqual({ published: 2, awaitingGrading: 0, overridden: 0 });
     const [r1, r2] = [await result(a1), await result(a2)];
     expect(r1.status).toBe("PUBLISHED");
     expect(r1.verificationCode).not.toBe(r2.verificationCode);
     expect(await status(GradingService.gradeAnswer(w.users.ex1, { attemptId: a1, questionId: w.questions.essay.id, marks: 1, feedback: "" }))).toBe(409);
-    expect(await GradingService.publishResults(w.users.ex1, examId)).toEqual({ published: 0, awaitingGrading: 0 });
+    expect(await GradingService.publishResults(w.users.ex1, examId)).toEqual({ published: 0, awaitingGrading: 0, overridden: 0 });
     expect(await db.select().from(results).where(eq(results.attemptId, a3))).toHaveLength(0);
   });
   it("candidates see only their own published results; breakdown has no answer keys", async () => {
@@ -102,7 +102,10 @@ describe("publication, reports and verification", () => {
     expect(mine).toHaveLength(1);
     const r1 = await result(a1);
     const bd = await ResultsService.candidateBreakdown(w.users.c1, r1.id);
-    expect(bd.find((b) => b.type === "ESSAY")).toMatchObject({ awarded: 8.5, feedback: "Good" });
+    expect(bd.items.find((b) => b.type === "ESSAY")).toMatchObject({ awarded: 8.5, feedback: "Good", outcome: "partial" });
+    expect(bd.items.find((b) => b.type === "MCQ_SINGLE")).toMatchObject({ outcome: "correct", topic: expect.any(String) });
+    expect(bd.topics.reduce((s, t) => s + t.marks, 0)).toBe(17);
+    expect(bd.timeSpentSeconds).toBeGreaterThanOrEqual(0);
     expect(JSON.stringify(bd)).not.toMatch(/correctAnswer|accepted/);
     expect(await status(ResultsService.candidateBreakdown(w.users.c2, r1.id))).toBe(404);
   });
@@ -122,7 +125,8 @@ describe("publication, reports and verification", () => {
   });
   it("public verification reveals only masked, minimal data", async () => {
     const v = await ResultsService.verify((await result(a1)).verificationCode!.toLowerCase());
-    expect(v).toMatchObject({ candidate: "Cara C.", outcome: "Pass" });
+    expect(v).toMatchObject({ status: "valid", examTitle: expect.any(String) });
+    expect(Object.keys(v!).sort()).toEqual(["code", "examTitle", "issuedAt", "status"]);
     expect(JSON.stringify(v)).not.toMatch(/@|it\.test|[0-9a-f]{8}-[0-9a-f]{4}/);
     expect(await ResultsService.verify("CKZ-AAAA-BBBB-CCCC")).toBeNull();
     expect(await ResultsService.verify("'; drop table results; --")).toBeNull();
@@ -149,5 +153,31 @@ describe("summaries, analytics and announcements", () => {
     await db.insert(announcements).values({ examId: id, authorId: w.users.ex1.id, title: "Q2 fixed", body: "Option C typo corrected", audience: "CANDIDATES" });
     const s = await AttemptService.getState(w.users.c1, attemptId);
     expect(s.announcements[0]).toMatchObject({ title: "Q2 fixed" });
+  });
+});
+
+describe("publication rules (server-enforced)", () => {
+  it("blocks publishing while written answers are pending, allows an explicit override, and withdrawal revokes codes", async () => {
+    const id = await createOpenExam(w);
+    const { attemptId } = await AttemptService.start(w.users.c1, id, { sandbox: false });
+    await AttemptService.saveAnswers(w.users.c1, attemptId, { answers: [{ questionId: w.questions.essay.id, response: { text: "Needs a human" }, flagged: false, revision: 1 }] });
+    await AttemptService.submit(w.users.c1, attemptId);
+    const check = await GradingService.publishChecklist(w.users.ex1, id);
+    expect(check).toMatchObject({ needsGrading: 1, readyToPublish: 0, inProgress: 0 });
+    await expect(GradingService.publishResults(w.users.ex1, id)).rejects.toMatchObject({ status: 409, code: "GRADING_PENDING" });
+    expect(await GradingService.publishResults(w.users.ex1, id, { override: true })).toMatchObject({ published: 1, overridden: 1 });
+    const r = await result(attemptId);
+    expect(r).toMatchObject({ status: "PUBLISHED", publishedById: w.users.ex1.id });
+    expect((await ResultsService.verify(r.verificationCode!))?.status).toBe("valid");
+
+    expect(await GradingService.unpublishResults(w.users.ex1, id)).toEqual({ withdrawn: 1 });
+    expect((await ResultsService.verify(r.verificationCode!))?.status).toBe("revoked");
+    expect(await ResultsService.candidateResults(w.users.c1.id).then((x) => x.some((y) => y.resultId === r.id))).toBe(false);
+    expect((await ResultsService.candidateAwaiting(w.users.c1.id)).some((a) => a.attemptId === attemptId)).toBe(true);
+    // Withdrawn results can be corrected and re-published with the SAME code
+    await GradingService.gradeAnswer(w.users.ex1, { attemptId, questionId: w.questions.essay.id, marks: 6, feedback: "" });
+    await GradingService.publishResults(w.users.ex1, id);
+    expect((await result(attemptId)).verificationCode).toBe(r.verificationCode);
+    await expect(GradingService.unpublishResults(w.users.ex2, id)).rejects.toMatchObject({ status: 404 });
   });
 });

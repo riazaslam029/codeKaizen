@@ -138,6 +138,9 @@ export async function gradeAnswerAction(input: unknown): Promise<ActionResult<{ 
     return r ? { score: r.score, pending: r.pending } : null;
   }, "Grade saved");
 }
-export async function publishResultsAction(examId: string): Promise<ActionResult<{ published: number; awaitingGrading: number }>> {
-  return runAction(async () => GradingService.publishResults(await staff(), id.parse(examId)));
+export async function publishResultsAction(examId: string, override = false): Promise<ActionResult<{ published: number; awaitingGrading: number; overridden: number }>> {
+  return runAction(async () => GradingService.publishResults(await staff(), id.parse(examId), { override: z.boolean().parse(override) }));
+}
+export async function unpublishResultsAction(examId: string): Promise<ActionResult<{ withdrawn: number }>> {
+  return runAction(async () => GradingService.unpublishResults(await staff(), id.parse(examId)));
 }

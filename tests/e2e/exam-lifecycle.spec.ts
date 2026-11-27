@@ -128,27 +128,74 @@ test("examiner monitors, grades the written answer and publishes", async ({ page
   // single 2 + multi 4 + essay 8 = 14 / 16
   await expect(page.getByText("14 / 16")).toBeVisible();
 
+  // Before publication the candidate sees a friendly waiting state, never an error
+  const candCtx = await page.context().browser()!.newContext();
+  const cand = await candCtx.newPage();
+  await apiLogin(cand, w.users.cand1.email);
+  await cand.goto("/candidate/results");
+  await expect(cand.getByText(/Results not published yet/)).toBeVisible();
+  await candCtx.close();
+
   await page.goto(examUrl.replace("/exams/", "/results/"));
-  await page.getByRole("button", { name: /Publish 1 graded/ }).click();
+  await expect(page.getByLabel("Pre-publish checklist")).toContainText("All written answers are graded");
+  await expect(page.getByRole("row", { name: /Casey Candidate/ })).toContainText("Unpublished");
+  await page.getByRole("button", { name: /Publish results \(1\)/ }).click();
+  await expect(page.getByRole("alertdialog")).toContainText("1 candidate(s) will see their score");
   await page.getByRole("alertdialog").getByRole("button", { name: "Publish results" }).click();
   await expect(page.getByText(/Published 1 result/)).toBeVisible();
   await expect(page.getByRole("row", { name: /Casey Candidate/ })).toContainText("Published");
+  await expect(page.getByRole("row", { name: /Casey Candidate/ })).toContainText("Eli Examiner");
+
+  // Exam-level PDF (examiner only)
+  const report = await page.request.get(examUrl.replace("/examiner/exams/", "/api/exams/") + "/report");
+  expect(report.status()).toBe(200);
+  expect(report.headers()["content-type"]).toBe("application/pdf");
+
+  // Analytics load with real data
+  await page.goto(examUrl.replace("/exams/", "/analytics/"));
+  await expect(page.getByText(/Based on 1 submitted attempt/)).toBeVisible();
+  await expect(page.getByText("Assigned difficulty vs observed accuracy")).toBeVisible();
+  await expect(page.getByText("Most common wrong answers")).toBeVisible();
 });
 
-test("candidate sees the published result, PDF and verification", async ({ page }) => {
+test("candidate sees the published result, PDF with QR, and verification (valid → revoked)", async ({ page, browser }) => {
   await apiLogin(page, w.users.cand1.email);
   await page.goto("/candidate/results");
-  await page.getByRole("link", { name: "E2E Web Fundamentals" }).click();
-  await expect(page.getByText("87.50%")).toBeVisible();
+  await page.getByRole("link", { name: "E2E Web Fundamentals", exact: true }).click();
+  await expect(page.getByText("87.5%")).toBeVisible();
+  await expect(page.getByText("Performance by topic")).toBeVisible();
+  await expect(page.getByText("Question by question")).toBeVisible();
   await expect(page.getByText("Clear explanation.")).toBeVisible();
-  const code = (await page.getByText(/^CKZ-/).first().textContent())!.trim();
+  await expect(page.getByText(/Time spent:/)).toBeVisible();
+  const code = (await page.locator("span.font-mono", { hasText: /^CKZ-/ }).first().textContent())!.trim();
 
-  const pdf = await page.request.get(await page.getByRole("link", { name: /Download PDF report/ }).getAttribute("href") as string);
+  const pdf = await page.request.get((await page.getByRole("link", { name: /Download PDF report/ }).getAttribute("href")) as string);
   expect(pdf.headers()["content-type"]).toBe("application/pdf");
-  expect((await pdf.body()).subarray(0, 5).toString()).toBe("%PDF-");
+  const bytes = await pdf.body();
+  expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
+  expect(bytes.toString("latin1")).toMatch(/\/Subtype\s*\/Image/); // embedded QR code image
+
+  // Candidates cannot download the exam-level report
+  const examId = examUrl.split("/").pop();
+  expect((await page.request.get(`/api/exams/${examId}/report`)).status()).toBe(403);
 
   await page.goto(`/verify/${code}`);
-  await expect(page.getByRole("heading", { name: "Genuine report" })).toBeVisible();
-  await expect(page.getByText("Casey C.")).toBeVisible();
-  await expect(page.getByText(w.users.cand1.email)).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Valid" })).toBeVisible();
+  await expect(page.getByText("E2E Web Fundamentals")).toBeVisible();
+  await expect(page.getByText("Casey")).toHaveCount(0);
+  await expect(page.getByText("87.5")).toHaveCount(0);
+
+  // Examiner withdraws → code reports Revoked, candidate sees the waiting state again
+  const exCtx = await browser.newContext();
+  const ex = await exCtx.newPage();
+  await apiLogin(ex, w.users.examiner.email);
+  await ex.goto(examUrl.replace("/exams/", "/results/"));
+  await ex.getByRole("button", { name: /Unpublish/ }).click();
+  await ex.getByRole("alertdialog").getByRole("button", { name: "Withdraw results" }).click();
+  await expect(ex.getByText(/Withdrew 1 result/)).toBeVisible();
+  await exCtx.close();
+  await page.goto(`/verify/${code}`);
+  await expect(page.getByRole("heading", { name: "Revoked" })).toBeVisible();
+  await page.goto("/verify/CKZ-AAAA-BBBB-CCCC");
+  await expect(page.getByRole("heading", { name: "Invalid" })).toBeVisible();
 });

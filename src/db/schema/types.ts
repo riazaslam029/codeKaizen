@@ -24,6 +24,9 @@ export type AttemptQuestionSnapshot = {
   marks: number;
   negativeMarks: number;
   multiScoring: MultiScoring;
+  /** Copied from the bank at start time (optional: attempts started before this field existed lack it). */
+  topic?: string | null;
+  difficulty?: "EASY" | "MEDIUM" | "HARD";
 };
 
 export type WorkspacePreferences = {

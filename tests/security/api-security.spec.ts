@@ -131,7 +131,7 @@ test.describe("authorisation and data isolation", () => {
     for (const code of ["CKZ-AAAA-BBBB-CCCC", "' OR 1=1 --", "<script>alert(1)</script>"]) {
       const res = await ctx.get(`/api/verify/${encodeURIComponent(code)}`);
       expect(res.status()).toBe(404);
-      expect(await res.json()).toEqual({ valid: false });
+      expect(await res.json()).toEqual({ valid: false, status: "invalid" });
     }
   });
 });

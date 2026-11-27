@@ -133,6 +133,8 @@ export class AttemptService {
         marks: sql<number>`coalesce(${examQuestions.marks}, ${questions.defaultMarks})::float`,
         negativeMarks: questions.negativeMarks,
         multiScoring: questions.multiScoring,
+        topic: sql<string | null>`coalesce(${questions.topic}, ${questions.subject})`,
+        difficulty: questions.difficulty,
       })
       .from(examQuestions)
       .innerJoin(questions, eq(questions.id, examQuestions.questionId))

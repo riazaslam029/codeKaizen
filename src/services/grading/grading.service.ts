@@ -124,30 +124,71 @@ export class GradingService {
     return summary;
   }
 
-  /**
-   * Controlled publication: only fully graded attempts are published; each receives a unique
-   * verification code. Nothing is ever published automatically.
-   */
-  static async publishResults(actor: SessionUser, examId: string) {
+  /** Pre-publish checklist for an exam (real attempts only). */
+  static async publishChecklist(actor: SessionUser, examId: string) {
     await assertCanManageExam(actor, examId);
     const rows = await db
-      .select({ resultId: results.id, attemptStatus: attempts.status })
+      .select({ attemptStatus: attempts.status, resultStatus: results.status })
+      .from(attempts)
+      .leftJoin(results, eq(results.attemptId, attempts.id))
+      .where(and(eq(attempts.examId, examId), eq(attempts.isSandbox, false)));
+    const finalised = rows.filter((r) => r.attemptStatus !== "IN_PROGRESS" && r.attemptStatus !== "INVALIDATED");
+    return {
+      inProgress: rows.filter((r) => r.attemptStatus === "IN_PROGRESS").length,
+      needsGrading: finalised.filter((r) => r.attemptStatus === "SUBMITTED" || r.attemptStatus === "AUTO_SUBMITTED").length,
+      readyToPublish: finalised.filter((r) => r.attemptStatus === "GRADED" && r.resultStatus !== "PUBLISHED").length,
+      published: finalised.filter((r) => r.resultStatus === "PUBLISHED").length,
+      withdrawn: finalised.filter((r) => r.resultStatus === "WITHHELD").length,
+      total: finalised.length,
+    };
+  }
+
+  /**
+   * Controlled publication (never automatic). Server-enforced rules:
+   * - only finalised, real attempts are published, each gets (or keeps) a unique verification code;
+   * - if any written answer still needs a mark, publishing is REFUSED unless `override` is explicitly set,
+   *   in which case ungraded written answers count as 0 and that is recorded in the audit trail.
+   */
+  static async publishResults(actor: SessionUser, examId: string, opts: { override?: boolean } = {}) {
+    const check = await this.publishChecklist(actor, examId);
+    if (check.needsGrading > 0 && !opts.override) {
+      throw new ApiError(409, "GRADING_PENDING", `${check.needsGrading} attempt(s) still have written answers to grade. Grade them first or publish with override.`);
+    }
+    const rows = await db
+      .select({ resultId: results.id, attemptId: results.attemptId, attemptStatus: attempts.status, code: results.verificationCode })
       .from(results)
       .innerJoin(attempts, eq(attempts.id, results.attemptId))
-      .where(and(eq(results.examId, examId), ne(results.status, "PUBLISHED")));
-    const ready = rows.filter((r) => r.attemptStatus === "GRADED");
-    const notReady = rows.length - ready.length;
+      .where(and(eq(results.examId, examId), ne(results.status, "PUBLISHED"), eq(attempts.isSandbox, false)));
+    const toPublish = rows.filter((r) => r.attemptStatus === "GRADED" || (opts.override && (r.attemptStatus === "SUBMITTED" || r.attemptStatus === "AUTO_SUBMITTED")));
     const now = new Date();
     await runBatch(
-      ready.map((r) =>
+      toPublish.map((r) =>
         db
           .update(results)
-          .set({ status: "PUBLISHED", publishedAt: now, verificationCode: verificationCode(), gradedById: actor.id })
+          .set({ status: "PUBLISHED", publishedAt: now, verificationCode: r.code ?? verificationCode(), publishedById: actor.id })
           .where(and(eq(results.id, r.resultId), ne(results.status, "PUBLISHED"))),
       ),
     );
-    await audit(actor.id, "results.publish", `${actor.name} published ${ready.length} result(s)`, { type: "exam", id: examId });
-    return { published: ready.length, awaitingGrading: notReady };
+    const overridden = opts.override ? toPublish.filter((r) => r.attemptStatus !== "GRADED").length : 0;
+    await audit(
+      actor.id,
+      "results.publish",
+      `${actor.name} published ${toPublish.length} result(s)${overridden ? ` (override: ${overridden} with ungraded written answers)` : ""}`,
+      { type: "exam", id: examId },
+    );
+    return { published: toPublish.length, awaitingGrading: check.needsGrading - overridden, overridden };
+  }
+
+  /** Withdraw published results: candidates stop seeing them, their verification codes report "revoked". */
+  static async unpublishResults(actor: SessionUser, examId: string) {
+    await assertCanManageExam(actor, examId);
+    const updated = await db
+      .update(results)
+      .set({ status: "WITHHELD", publishedById: actor.id })
+      .where(and(eq(results.examId, examId), eq(results.status, "PUBLISHED")))
+      .returning({ id: results.id });
+    await audit(actor.id, "results.unpublish", `${actor.name} withdrew ${updated.length} published result(s)`, { type: "exam", id: examId });
+    return { withdrawn: updated.length };
   }
 
   /** Re-runs grading for every finalised attempt of an exam (recovers from any interrupted grading). */

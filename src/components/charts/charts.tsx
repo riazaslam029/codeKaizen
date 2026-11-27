@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, PolarAngleAxis, RadialBar, RadialBarChart, XAxis, YAxis } from "recharts";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 /** Daily platform activity (audit events + real attempts started). */
@@ -82,6 +82,52 @@ export function QuestionRatesChart({ data }: { data: { label: string; correct: n
         <ChartLegend content={<ChartLegendContent />} />
         <Bar dataKey="correct" fill="var(--color-correct)" radius={[4, 4, 0, 0]} />
         <Bar dataKey="skipped" fill="var(--color-skipped)" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
+/** Radial score gauge (percentage) with the pass mark in the caption. */
+export function ScoreGauge({ percentage, passed }: { percentage: number; passed: boolean }) {
+  const config = { score: { label: "Score", color: passed ? "var(--success)" : "var(--destructive)" } } satisfies ChartConfig;
+  const data = [{ name: "score", value: Math.max(0, Math.min(100, percentage)), fill: "var(--color-score)" }];
+  return (
+    <ChartContainer config={config} className="relative mx-auto aspect-square h-44" role="img" aria-label={`Score ${percentage.toFixed(1)} percent`}>
+      <RadialBarChart data={data} startAngle={90} endAngle={-270} innerRadius="78%" outerRadius="100%">
+        <PolarAngleAxis type="number" domain={[0, 100]} tick={false} axisLine={false} />
+        <RadialBar dataKey="value" background={{ fill: "var(--muted)" }} cornerRadius={12} isAnimationActive />
+      </RadialBarChart>
+    </ChartContainer>
+  );
+}
+
+/** Per-topic percentage bars (horizontal). */
+export function TopicChart({ data }: { data: { topic: string; percentage: number }[] }) {
+  const config = { percentage: { label: "Score %", color: "var(--chart-1)" } } satisfies ChartConfig;
+  return (
+    <ChartContainer config={config} className="w-full" style={{ height: Math.max(140, data.length * 42) }}>
+      <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24 }} accessibilityLayer>
+        <CartesianGrid horizontal={false} />
+        <XAxis type="number" domain={[0, 100]} unit="%" tickLine={false} axisLine={false} />
+        <YAxis type="category" dataKey="topic" width={110} tickLine={false} axisLine={false} fontSize={12} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <Bar dataKey="percentage" fill="var(--color-percentage)" radius={[0, 4, 4, 0]} />
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
+/** Assigned difficulty vs observed accuracy (average correct %). */
+export function DifficultyAccuracyChart({ data }: { data: { difficulty: string; accuracy: number; questions: number }[] }) {
+  const config = { accuracy: { label: "Observed correct %", color: "var(--chart-2)" } } satisfies ChartConfig;
+  return (
+    <ChartContainer config={config} className="h-56 w-full">
+      <BarChart data={data} margin={{ left: 4, right: 8, top: 8 }} accessibilityLayer>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="difficulty" tickLine={false} axisLine={false} tickMargin={8} />
+        <YAxis domain={[0, 100]} unit="%" tickLine={false} axisLine={false} width={36} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <Bar dataKey="accuracy" fill="var(--color-accuracy)" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ChartContainer>
   );

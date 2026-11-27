@@ -1,4 +1,4 @@
-import { ShieldAlert, ShieldCheck } from "lucide-react";
+import { ShieldAlert, ShieldCheck, ShieldX } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -17,7 +17,9 @@ export default function VerifyCodePage({ params }: { params: Promise<{ code: str
         <Suspense fallback={<p className="text-sm text-muted-foreground">Checking…</p>}>
           <Outcome params={params} />
         </Suspense>
-        <Link href="/verify" className="mt-6 inline-block text-sm font-medium text-primary hover:underline">Verify another code</Link>
+        <Link href="/verify" className="mt-6 inline-block text-sm font-medium text-primary hover:underline">
+          Verify another code
+        </Link>
       </div>
     </main>
   );
@@ -25,42 +27,40 @@ export default function VerifyCodePage({ params }: { params: Promise<{ code: str
 
 async function Outcome({ params }: { params: Promise<{ code: string }> }) {
   await connection();
-  const code = decodeURIComponent((await params).code);
+  const code = decodeURIComponent((await params).code).slice(0, 40);
   const r = await ResultsService.verify(code);
-  if (!r) {
-    return (
-      <Card className="border-destructive/40 shadow-none">
-        <CardContent className="flex items-start gap-3">
-          <ShieldAlert className="mt-0.5 size-6 shrink-0 text-destructive" aria-hidden />
-          <div>
-            <h1 className="text-lg font-semibold">Not verified</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              No published report matches <span className="font-mono">{code.slice(0, 24)}</span>. Check the code for typos, or contact the issuing institution.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  const date = new Intl.DateTimeFormat("en-GB", { dateStyle: "long", timeZone: "UTC" }).format(r.publishedAt);
+  const date = r ? new Intl.DateTimeFormat("en-GB", { dateStyle: "long", timeZone: "UTC" }).format(r.issuedAt) : "";
+
+  const view =
+    !r
+      ? { icon: ShieldX, tone: "border-destructive/40", iconCls: "text-destructive", title: "Invalid", text: `No report was issued with the code ${code}. Check it for typos.` }
+      : r.status === "revoked"
+        ? { icon: ShieldAlert, tone: "border-warning/60", iconCls: "text-[oklch(0.5_0.13_65)]", title: "Revoked", text: "This report was issued but has since been withdrawn by the examiner. It is no longer valid." }
+        : { icon: ShieldCheck, tone: "border-success/40", iconCls: "text-success", title: "Valid", text: "This code matches a result report issued by CodeKaizen Exams." };
+
   return (
-    <Card className="border-success/40 shadow-none">
+    <Card className={`shadow-none ${view.tone}`}>
       <CardContent>
         <div className="flex items-start gap-3">
-          <ShieldCheck className="mt-0.5 size-6 shrink-0 text-success" aria-hidden />
+          <view.icon className={`mt-0.5 size-7 shrink-0 ${view.iconCls}`} aria-hidden />
           <div>
-            <h1 className="text-lg font-semibold">Genuine report</h1>
-            <p className="mt-1 text-sm text-muted-foreground">This code matches a result published on CodeKaizen Exams.</p>
+            <h1 className="text-lg font-semibold">{view.title}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{view.text}</p>
           </div>
         </div>
-        <dl className="mt-5 grid grid-cols-[8rem_1fr] gap-y-2 text-sm">
-          <dt className="text-muted-foreground">Code</dt><dd className="font-mono">{r.code}</dd>
-          <dt className="text-muted-foreground">Candidate</dt><dd>{r.candidate}</dd>
-          <dt className="text-muted-foreground">Examination</dt><dd>{r.examTitle} ({r.examCode})</dd>
-          <dt className="text-muted-foreground">Outcome</dt><dd>{r.outcome} · {r.percentage.toFixed(2)}%</dd>
-          <dt className="text-muted-foreground">Published</dt><dd>{date}</dd>
-        </dl>
-        <p className="mt-5 text-xs text-muted-foreground">Only the minimum details needed to confirm authenticity are shown. Contact details, answers and identifiers are never disclosed.</p>
+        {r && (
+          <dl className="mt-5 grid grid-cols-[7rem_1fr] gap-y-2 text-sm">
+            <dt className="text-muted-foreground">Code</dt>
+            <dd className="font-mono">{r.code}</dd>
+            <dt className="text-muted-foreground">Examination</dt>
+            <dd>{r.examTitle}</dd>
+            <dt className="text-muted-foreground">Issued</dt>
+            <dd>{date}</dd>
+          </dl>
+        )}
+        <p className="mt-5 text-xs text-muted-foreground">
+          For privacy, verification never shows the candidate&apos;s name, score, contact details or answers. Compare the code and issue date with the printed report.
+        </p>
       </CardContent>
     </Card>
   );

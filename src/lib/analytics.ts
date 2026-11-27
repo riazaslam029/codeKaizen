@@ -85,6 +85,7 @@ export function computeQuestionAnalytics(tries: { id: string; snapshot: AttemptQ
       type: e.q.type,
       prompt: e.q.prompt,
       marks: e.q.marks,
+      assignedDifficulty: e.q.difficulty ?? null,
       attempts: e.seen,
       answered: e.answered,
       skipped: e.seen - e.answered,

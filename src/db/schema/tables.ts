@@ -270,6 +270,8 @@ export const results = pgTable(
     publishedAt: timestamp("published_at", { withTimezone: true }),
     /** Public, unguessable id printed on the PDF report; assigned at publication. */
     verificationCode: varchar("verification_code", { length: 24 }).unique(),
+    /** Who last published (or withdrew) this result. */
+    publishedById: uuid("published_by_id").references(() => users.id, { onDelete: "set null" }),
     gradedById: uuid("graded_by_id").references(() => users.id, { onDelete: "set null" }),
     ...timestamps,
   },

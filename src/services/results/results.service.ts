@@ -1,12 +1,11 @@
 import "server-only";
 import { and, asc, desc, eq, gte, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { answers, attempts, auditLogs, exams, results, users } from "@/db/schema";
+import { answers, attempts, auditLogs, exams, questions, results, users } from "@/db/schema";
 import type { SessionUser } from "@/lib/auth/dal";
 import { ApiError } from "@/lib/http";
 import { assertCanManageExam } from "@/lib/permissions";
 import { computeQuestionAnalytics, summarizeResults } from "@/lib/analytics";
-import { maskName } from "@/lib/privacy";
 import { isAnswered } from "@/lib/scoring";
 import { AttemptService } from "@/services/attempts/attempt.service";
 import { GradingService } from "@/services/grading/grading.service";
@@ -36,6 +35,9 @@ export class ResultsService {
         verificationCode: results.verificationCode,
         attemptStatus: attempts.status,
         submittedAt: attempts.submittedAt,
+        startedAt: attempts.startedAt,
+        manualGrades: sql<number>`(select count(*)::int from ${answers} where ${answers.attemptId} = ${attempts.id} and ${answers.gradedById} is not null)`,
+        publishedBy: sql<string | null>`(select u.name from ${users} u where u.id = ${results.publishedById})`,
       })
       .from(results)
       .innerJoin(users, eq(users.id, results.candidateId))
@@ -43,7 +45,11 @@ export class ResultsService {
       .where(eq(results.examId, examId))
       .orderBy(desc(results.percentage));
 
-    return { rows, ...summarizeResults(rows) };
+    const withStatus = rows.map((r) => ({
+      ...r,
+      gradingStatus: (r.attemptStatus !== "GRADED" ? "NEEDS_GRADING" : r.manualGrades > 0 ? "GRADED_MANUAL" : "AUTO_GRADED") as "NEEDS_GRADING" | "GRADED_MANUAL" | "AUTO_GRADED",
+    }));
+    return { rows: withStatus, ...summarizeResults(rows) };
   }
 
   /** Finalised attempts in the examiner's exams that still contain un-graded written answers. */
@@ -92,8 +98,14 @@ export class ResultsService {
       .select({ attemptId: answers.attemptId, questionId: answers.questionId, response: answers.response, marks: answers.marksAwarded })
       .from(answers)
       .where(inArray(answers.attemptId, tries.map((t) => t.id)));
-    const questions = computeQuestionAnalytics(tries, ans);
-    return { attempts: tries.length, questions };
+    const computed = computeQuestionAnalytics(tries, ans);
+    // Snapshots taken before difficulty was frozen fall back to the bank's current difficulty.
+    const missing = computed.filter((q) => !q.assignedDifficulty).map((q) => q.questionId);
+    const bank = missing.length
+      ? new Map((await db.select({ id: questions.id, d: questions.difficulty }).from(questions).where(inArray(questions.id, missing))).map((q) => [q.id, q.d]))
+      : new Map<string, "EASY" | "MEDIUM" | "HARD">();
+    const questionsOut = computed.map((q) => ({ ...q, assignedDifficulty: q.assignedDifficulty ?? bank.get(q.questionId) ?? null }));
+    return { attempts: tries.length, questions: questionsOut };
   }
 
   /** Candidate: only their own PUBLISHED results. */
@@ -126,17 +138,58 @@ export class ResultsService {
     const [a] = await db.select().from(attempts).where(eq(attempts.id, r.attemptId)).limit(1);
     const rows = await db.select().from(answers).where(eq(answers.attemptId, r.attemptId));
     const byQ = new Map(rows.map((x) => [x.questionId, x]));
-    return [...a!.questionSnapshot]
+    // Older snapshots may not carry topic: fall back to the bank's current topic for display only.
+    const missing = a!.questionSnapshot.filter((q) => q.topic === undefined).map((q) => q.questionId);
+    const bankTopics = missing.length
+      ? new Map(
+          (await db.select({ id: questions.id, topic: questions.topic, subject: questions.subject }).from(questions).where(inArray(questions.id, missing))).map((q) => [q.id, q.topic ?? q.subject]),
+        )
+      : new Map<string, string | null>();
+    const items = [...a!.questionSnapshot]
       .sort((x, y) => x.position - y.position)
-      .map((q) => ({
-        position: q.position,
-        prompt: q.prompt,
-        type: q.type,
-        marks: q.marks,
-        awarded: byQ.get(q.questionId)?.marksAwarded ?? 0,
-        feedback: byQ.get(q.questionId)?.feedback ?? null,
-        answered: isAnswered(byQ.get(q.questionId)?.response),
-      }));
+      .map((q) => {
+        const ans = byQ.get(q.questionId);
+        const answered = isAnswered(ans?.response);
+        const awarded = ans?.marksAwarded ?? 0;
+        const outcome = !answered ? "skipped" : awarded >= q.marks ? "correct" : awarded > 0 ? "partial" : "incorrect";
+        return {
+          position: q.position,
+          prompt: q.prompt,
+          type: q.type,
+          topic: (q.topic ?? bankTopics.get(q.questionId) ?? null) || "General",
+          marks: q.marks,
+          awarded,
+          feedback: ans?.feedback ?? null,
+          answered,
+          outcome: outcome as "correct" | "partial" | "incorrect" | "skipped",
+        };
+      });
+    const topics = [...new Set(items.map((i) => i.topic))].map((topic) => {
+      const t = items.filter((i) => i.topic === topic);
+      const max = t.reduce((s2, i) => s2 + i.marks, 0);
+      const got = t.reduce((s2, i) => s2 + Math.max(0, i.awarded), 0);
+      return { topic, questions: t.length, marks: max, awarded: got, percentage: max ? Math.round((got / max) * 1000) / 10 : 0 };
+    });
+    const timeSpentSeconds = a!.submittedAt ? Math.max(0, Math.round((a!.submittedAt.getTime() - a!.startedAt.getTime()) / 1000)) : null;
+    return { items, topics, timeSpentSeconds };
+  }
+
+  /** Candidate's finalised attempts whose results are not (yet) published — shown as a friendly waiting state. */
+  static candidateAwaiting(candidateId: string) {
+    return db
+      .select({ attemptId: attempts.id, examTitle: exams.title, examCode: exams.code, submittedAt: attempts.submittedAt, resultStatus: results.status })
+      .from(attempts)
+      .innerJoin(exams, eq(exams.id, attempts.examId))
+      .leftJoin(results, eq(results.attemptId, attempts.id))
+      .where(
+        and(
+          eq(attempts.candidateId, candidateId),
+          eq(attempts.isSandbox, false),
+          inArray(attempts.status, [...FINAL]),
+          sql`(${results.status} is null or ${results.status} <> 'PUBLISHED')`,
+        ),
+      )
+      .orderBy(desc(attempts.submittedAt));
   }
 
   /** Everything the PDF needs, with access control: candidate (own), exam owner, or admin — published only. */
@@ -180,33 +233,18 @@ export class ResultsService {
    * Public verification. Returns ONLY what is needed to confirm a printed report is genuine:
    * masked name, exam title, outcome, percentage and publication date. No email, ids or answers.
    */
-  static async verify(code: string) {
+  static async verify(code: string): Promise<{ status: "valid" | "revoked"; code: string; examTitle: string; issuedAt: Date } | null> {
     const normalized = code.trim().toUpperCase();
     if (!/^CKZ-[2-9A-HJ-NP-Z]{4}-[2-9A-HJ-NP-Z]{4}-[2-9A-HJ-NP-Z]{4}$/.test(normalized)) return null;
     const [row] = await db
-      .select({
-        name: users.name,
-        examTitle: exams.title,
-        examCode: exams.code,
-        percentage: results.percentage,
-        passed: results.passed,
-        publishedAt: results.publishedAt,
-      })
+      .select({ examTitle: exams.title, status: results.status, publishedAt: results.publishedAt })
       .from(results)
-      .innerJoin(users, eq(users.id, results.candidateId))
       .innerJoin(exams, eq(exams.id, results.examId))
-      .where(and(eq(results.verificationCode, normalized), eq(results.status, "PUBLISHED")))
+      .where(eq(results.verificationCode, normalized))
       .limit(1);
-    if (!row) return null;
-    return {
-      code: normalized,
-      candidate: maskName(row.name),
-      examTitle: row.examTitle,
-      examCode: row.examCode,
-      percentage: row.percentage,
-      outcome: row.passed ? "Pass" : "Not passed",
-      publishedAt: row.publishedAt!,
-    };
+    if (!row || !row.publishedAt) return null;
+    // Only the minimum needed to establish authenticity: no name, score, email or ids.
+    return { status: row.status === "PUBLISHED" ? "valid" : "revoked", code: normalized, examTitle: row.examTitle, issuedAt: row.publishedAt };
   }
 
   /** All published results in exams the examiner owns (Reports page). */

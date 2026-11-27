@@ -40,7 +40,7 @@ test("offline: keep answering, see pending sync, reconnect → saved and recorde
 
   const box = page.getByLabel("Your answer");
   await box.fill("Online part.");
-  await expect(page.getByText(/All answers saved/)).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("status").filter({ hasText: /All answers saved/ })).toBeVisible({ timeout: 20_000 });
 
   await context.setOffline(true);
   await expect(page.getByText("You are offline.", { exact: false })).toBeVisible();
@@ -55,7 +55,7 @@ test("offline: keep answering, see pending sync, reconnect → saved and recorde
   await page.keyboard.press("Escape");
 
   await context.setOffline(false);
-  await expect(page.getByText(/All answers saved/)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("status").filter({ hasText: /All answers saved/ })).toBeVisible({ timeout: 30_000 });
   await expect.poll(() => essayText(attemptId), { timeout: 15_000 }).toBe("Online part. Written while offline.");
   // Indicators recorded for the examiner after reconnecting
   await expect
@@ -64,6 +64,7 @@ test("offline: keep answering, see pending sync, reconnect → saved and recorde
 });
 
 test("failed syncs survive a refresh: outbox is recovered and replayed, deadline unchanged", async ({ page }) => {
+  test.setTimeout(240_000); // includes real exponential back-off (2, 4, 8, 16 s…) while saves are failing
   await apiLogin(page, w.users.cand2.email);
   await page.goto(`/attempt/${attemptId}`);
   const before = await timerSeconds(page);
@@ -80,9 +81,10 @@ test("failed syncs survive a refresh: outbox is recovered and replayed, deadline
   expect(after).toBeLessThanOrEqual(before);
 
   await page.unroute("**/api/attempts/*/answers");
-  await page.getByRole("button", { name: /Retry now/ }).click().catch(() => undefined);
+  // The app also retries by itself; the button is optional, so do not wait long for it.
+  await page.getByRole("button", { name: /Retry now/ }).click({ timeout: 5_000 }).catch(() => undefined);
   await expect.poll(() => essayText(attemptId), { timeout: 30_000 }).toBe("Edited during an outage, then the page was refreshed.");
-  await expect(page.getByText(/All answers saved/)).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("status").filter({ hasText: /All answers saved/ })).toBeVisible({ timeout: 20_000 });
 
   const resumed = await devDb().select().from(t.incidents).where(and(eq(t.incidents.attemptId, attemptId), eq(t.incidents.type, "ATTEMPT_RESUMED")));
   expect(resumed.length).toBeGreaterThanOrEqual(1);

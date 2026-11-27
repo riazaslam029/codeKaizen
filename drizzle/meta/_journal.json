@@ -22,6 +22,13 @@
       "when": 1795777403654,
       "tag": "0002_account_restriction",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795777978160,
+      "tag": "0003_result_publisher",
+      "breakpoints": true
     }
   ]
 }
