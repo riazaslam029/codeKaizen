@@ -1,7 +1,8 @@
 import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-config({ path: ".env.local" });
+// drizzle-kit reads .env.local (development) unless DRIZZLE_ENV_FILE points elsewhere.
+config({ path: process.env.DRIZZLE_ENV_FILE ?? ".env.local", quiet: true });
 
 export default defineConfig({
   schema: "./src/db/schema/index.ts",

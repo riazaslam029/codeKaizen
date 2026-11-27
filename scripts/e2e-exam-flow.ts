@@ -8,8 +8,10 @@
  * security and resilience rules, then deletes everything it created. Prints PASS/FAIL per check.
  * Runs with --conditions=react-server so server-only service modules can be imported directly.
  */
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import { assertNotProduction, loadDbEnv } from "./db-env";
+
+loadDbEnv();
+assertNotProduction("create E2E fixtures");
 
 import { and, eq, inArray, like, sql } from "drizzle-orm";
 import { createDb } from "../src/db/client";

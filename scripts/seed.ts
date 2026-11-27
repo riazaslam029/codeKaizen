@@ -2,11 +2,13 @@
  * DEVELOPMENT-ONLY seed. Idempotent: safe to run repeatedly.
  * Usage: npm run db:seed
  *
- * Refuses to run in production. Passwords come from SEED_*_PASSWORD env vars and are bcrypt-hashed.
+ * Development branch only: refuses unless NEON_BRANCH is set and is not "production".
+ * Passwords come from SEED_*_PASSWORD env vars and are bcrypt-hashed.
  */
-import { config } from "dotenv";
-config({ path: ".env.local" });
-config();
+import { assertNotProduction, loadDbEnv } from "./db-env";
+
+loadDbEnv();
+assertNotProduction("seed demo data");
 
 import { eq, sql } from "drizzle-orm";
 import { createDb } from "../src/db/client";
@@ -14,11 +16,6 @@ import { enrollments, examQuestions, exams, questions, users } from "../src/db/s
 import type { CorrectAnswer, QuestionOption } from "../src/db/schema/types";
 import type { QuestionType, UserRole } from "../src/db/schema/enums";
 import { hashPassword } from "../src/lib/auth/password";
-
-if (process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") {
-  console.error("✗ Refusing to seed: this script is for development databases only.");
-  process.exit(1);
-}
 
 function requiredPassword(name: string): string {
   const v = process.env[name];

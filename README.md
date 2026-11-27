@@ -51,16 +51,22 @@ UUID keys, timestamps, Postgres enums, CHECK constraints (window, marks, percent
 
 ## Setup
 
+Two Neon branches: **`production`** (live data) and **`dev`** (copy of production for local work, demo accounts, tests).
+
 ```bash
 npm install
-neon env pull                  # writes DATABASE_URL + DATABASE_URL_UNPOOLED into .env.local
+neon env pull --branch dev -s postgres                                          # .env.local → dev branch
+neon env pull --branch production -s postgres --file .env.neon.production       # production strings, kept separate
 # add AUTH_SECRET and SEED_* passwords to .env.local (see .env.example)
-npm run db:migrate
-npm run db:seed                # dev only: 6 users, WSEC-101 (scheduled) + WSEC-PRACTICE (open 30 days)
+npm run db:status        # dev: connectivity + migration status
+npm run db:migrate       # dev: apply pending migrations
+npm run db:seed          # dev only — refuses on the production branch
 npm run dev
 ```
 
-| Role | Demo account (password = your `SEED_*` value) |
+Production migrations (additive, recorded, re-runnable): `npm run db:status:prod` → review → `npm run db:migrate:prod`.
+
+| Role | Demo account on the **dev** branch (password = your `SEED_*` value) |
 | --- | --- |
 | Admin | admin@codekaizen.test |
 | Examiner (owns both exams) | d.reyes@codekaizen.test |
@@ -72,9 +78,12 @@ npm run dev
 | Command | Purpose |
 | --- | --- |
 | `npm run typecheck` / `npm run lint` / `npm run build` | static checks and production build |
-| `npm run db:generate` / `db:migrate` / `db:seed` | schema migrations and dev seed |
+| `npm run db:generate` | create a migration after editing `src/db/schema` (no DB access) |
+| `npm run db:migrate` / `db:status` | apply / inspect migrations on **dev** |
+| `npm run db:migrate:prod` / `db:status:prod` | apply / inspect migrations on **production** (explicit) |
+| `npm run db:seed` | demo data, **dev branch only** |
 | `npm run test:smoke` | 29 auth/authorisation checks against a running server (`BASE_URL`) |
 | `npm run test:e2e` | 47 end-to-end checks of the full exam lifecycle (creates and removes its own fixture) |
 
 ## Deployment (Vercel)
-Set `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` and `AUTH_SECRET`. Run `npm run db:migrate` against the production branch. Never set `SEED_*` in production.
+Production env: `DATABASE_URL` (production pooled) and `AUTH_SECRET` (unique). Preview env may point at the `dev` branch. Migrate with `npm run db:migrate:prod` before promoting a deploy. Never set `SEED_*` on Vercel.
