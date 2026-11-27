@@ -151,3 +151,32 @@
     }
   }
 }
+
+/* Exam workspace high-contrast theme (WCAG AAA-leaning: pure black on white, strong borders). */
+.contrast {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 0);
+  --muted: oklch(0.95 0 0);
+  --muted-foreground: oklch(0.2 0 0);
+  --border: oklch(0.15 0 0);
+  --input: oklch(0.15 0 0);
+  --primary: oklch(0.38 0.17 262);
+  --accent: oklch(0.92 0.04 262);
+  --accent-foreground: oklch(0.2 0.1 262);
+  --ring: oklch(0.38 0.17 262);
+}
+
+/* Navy-tinted dark theme for the workspace. */
+.dark {
+  --background: oklch(0.19 0.025 263);
+  --card: oklch(0.23 0.03 263);
+  --popover: oklch(0.23 0.03 263);
+  --primary: oklch(0.7 0.12 255);
+  --primary-foreground: oklch(0.18 0.03 263);
+  --accent: oklch(0.3 0.05 260);
+  --accent-foreground: oklch(0.95 0.01 255);
+  --success: oklch(0.72 0.13 160);
+  --warning: oklch(0.8 0.13 80);
+}

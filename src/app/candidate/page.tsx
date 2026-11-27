@@ -1,68 +1,54 @@
-import { CalendarClock, ClipboardList, Timer, UserRound } from "lucide-react";
+import { CalendarClock, CheckCircle2, ClipboardList, PlayCircle, Trophy } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { StatCard } from "@/components/shared/stat-card";
 import { requireRole } from "@/lib/auth/dal";
-import { formatDateTime, formatDuration } from "@/lib/format";
+import { AttemptService } from "@/services/attempts/attempt.service";
 import { ExamService } from "@/services/exams/exam.service";
+import { ResultsService } from "@/services/results/results.service";
+import { ExamCard } from "./exam-card";
 
-export const metadata: Metadata = { title: "My exams" };
+export const metadata: Metadata = { title: "Dashboard" };
 
-export default async function CandidateHomePage() {
+export default async function CandidateDashboard() {
   const candidate = await requireRole("CANDIDATE");
-  const list = await ExamService.listForCandidate(candidate.id);
+  await AttemptService.finalizeExpired({ candidateId: candidate.id });
+  const [list, results] = await Promise.all([ExamService.listForCandidate(candidate.id), ResultsService.candidateResults(candidate.id)]);
+  const available = list.filter((e) => e.canStart);
+  const upcoming = list.filter((e) => e.phase === "SCHEDULED" && e.enrollmentStatus === "ENROLLED");
+  const completed = list.filter((e) => e.latestAttempt && !e.openAttemptId);
 
   return (
     <>
-      <PageHeader
-        title={`Hello, ${candidate.name.split(" ")[0]}`}
-        description="Examinations you are enrolled in. Times are shown in UTC."
-      />
-      {list.length === 0 ? (
-        <EmptyState
-          icon={ClipboardList}
-          title="No examinations yet"
-          description="When an examiner enrols you in an examination it will appear here."
-        />
-      ) : (
-        <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {list.map((e) => (
-            <li key={e.enrollmentId}>
-              <Card className="h-full gap-3 shadow-none transition-shadow duration-200 hover:shadow-sm">
-                <CardHeader className="gap-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs text-muted-foreground">{e.code}</span>
-                    <StatusBadge value={e.enrollmentStatus === "ENROLLED" ? e.status : e.enrollmentStatus} />
-                  </div>
-                  <h2 className="text-base font-semibold leading-snug">{e.title}</h2>
-                  {e.description && <p className="line-clamp-2 text-sm text-muted-foreground">{e.description}</p>}
-                </CardHeader>
-                <CardContent>
-                  <dl className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <CalendarClock className="size-4 text-muted-foreground" aria-hidden />
-                      <dt className="sr-only">Starts</dt>
-                      <dd className="tabular">{formatDateTime(e.startsAt)}</dd>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Timer className="size-4 text-muted-foreground" aria-hidden />
-                      <dt className="sr-only">Duration</dt>
-                      <dd>{formatDuration(e.durationMinutes)}</dd>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <UserRound className="size-4 text-muted-foreground" aria-hidden />
-                      <dt className="sr-only">Examiner</dt>
-                      <dd>{e.examiner}</dd>
-                    </div>
-                  </dl>
-                </CardContent>
-              </Card>
-            </li>
-          ))}
-        </ul>
+      <PageHeader title={`Hello, ${candidate.name.split(" ")[0]}`} description="Your examinations at a glance. Times are shown in your local time zone." />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Available now" value={available.length} icon={PlayCircle} />
+        <StatCard label="Upcoming" value={upcoming.length} icon={CalendarClock} />
+        <StatCard label="Completed" value={completed.length} icon={CheckCircle2} />
+        <StatCard label="Published results" value={results.length} icon={Trophy} />
+      </div>
+
+      <section className="mt-8" aria-labelledby="avail">
+        <h2 id="avail" className="mb-3 text-lg font-semibold">Available now</h2>
+        {available.length === 0 ? (
+          <EmptyState icon={ClipboardList} title="Nothing to sit right now" description={upcoming.length ? "Your next examination appears here when its window opens." : "When you are enrolled in an open examination it will appear here."} />
+        ) : (
+          <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{available.map((e) => <li key={e.id}><ExamCard e={e} /></li>)}</ul>
+        )}
+      </section>
+
+      {upcoming.length > 0 && (
+        <section className="mt-8" aria-labelledby="up">
+          <h2 id="up" className="mb-3 text-lg font-semibold">Upcoming</h2>
+          <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{upcoming.map((e) => <li key={e.id}><ExamCard e={e} /></li>)}</ul>
+        </section>
       )}
+
+      <p className="mt-8 text-sm text-muted-foreground">
+        See every examination, including completed ones, in <Link href="/candidate/exams" className="font-medium text-primary hover:underline">My examinations</Link>.
+      </p>
     </>
   );
 }

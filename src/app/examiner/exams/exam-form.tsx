@@ -33,19 +33,27 @@ function toLocalInput(iso: string) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function ExamForm({ examId, initial, totalMarks, locked }: { examId?: string; initial?: ExamFormValues; totalMarks?: number; locked?: boolean }) {
+export function ExamForm({
+  examId,
+  initial,
+  totalMarks,
+  locked,
+  suggested,
+}: {
+  examId?: string;
+  initial?: ExamFormValues;
+  totalMarks?: number;
+  locked?: boolean;
+  suggested?: { startsAt: string; endsAt: string };
+}) {
   const router = useRouter();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, start] = useTransition();
   const [shuffleQuestions, setShuffleQuestions] = useState(initial?.shuffleQuestions ?? false);
   const [shuffleOptions, setShuffleOptions] = useState(initial?.shuffleOptions ?? false);
 
-  const defaults = (() => {
-    if (initial) return { starts: toLocalInput(initial.startsAt), ends: toLocalInput(initial.endsAt) };
-    const s = new Date(Date.now() + 60 * 60_000);
-    s.setMinutes(0, 0, 0);
-    return { starts: toLocalInput(s.toISOString()), ends: toLocalInput(new Date(s.getTime() + 3 * 3600_000).toISOString()) };
-  })();
+  const win = initial ?? suggested;
+  const defaults = win ? { starts: toLocalInput(win.startsAt), ends: toLocalInput(win.endsAt) } : { starts: "", ends: "" };
 
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

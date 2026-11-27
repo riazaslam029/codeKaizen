@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { cn } from "@/lib/utils";
 import type { NavIcon, NavItem } from "./nav-config";
 
@@ -39,11 +40,28 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   preferences: Settings2,
 };
 
-export function SidebarNav({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
-  const pathname = usePathname();
+type Props = { items: NavItem[]; onNavigate?: () => void };
+
+/**
+ * The active-item highlight depends on the URL, which is request-time data; it streams in behind
+ * <Suspense> so the rest of the shell can be prerendered. The fallback is the same list, un-highlighted.
+ */
+export function SidebarNav(props: Props) {
+  return (
+    <Suspense fallback={<NavList {...props} pathname={null} />}>
+      <ActiveNav {...props} />
+    </Suspense>
+  );
+}
+
+function ActiveNav(props: Props) {
+  return <NavList {...props} pathname={usePathname()} />;
+}
+
+function NavList({ items, onNavigate, pathname }: Props & { pathname: string | null }) {
   // The section root (e.g. /admin) is active only on an exact match; deeper items match by prefix.
   const isActive = (href: string) =>
-    pathname === href || (href.split("/").length > 2 && pathname.startsWith(`${href}/`));
+    pathname !== null && (pathname === href || (href.split("/").length > 2 && pathname.startsWith(`${href}/`)));
 
   return (
     <ul className="space-y-0.5">

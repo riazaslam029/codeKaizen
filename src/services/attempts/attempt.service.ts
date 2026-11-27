@@ -12,6 +12,7 @@ import {
   incidents,
   questions,
   scratchpads,
+  users,
 } from "@/db/schema";
 import type { IncidentType } from "@/db/schema/enums";
 import type { AnswerResponse, AttemptQuestionSnapshot, ScratchpadData } from "@/db/schema/types";
@@ -417,6 +418,8 @@ export class AttemptService {
       .select({
         id: attempts.id,
         candidateId: attempts.candidateId,
+        candidateName: users.name,
+        candidateEmail: users.email,
         status: attempts.status,
         startedAt: attempts.startedAt,
         expiresAt: attempts.expiresAt,
@@ -432,6 +435,7 @@ export class AttemptService {
         attentionCount: sql<number>`(select count(*)::int from ${incidents} where ${incidents.attemptId} = ${attempts.id} and ${incidents.severity} <> 'LOW')`,
       })
       .from(attempts)
+      .innerJoin(users, eq(users.id, attempts.candidateId))
       .where(and(eq(attempts.examId, examId), eq(attempts.isSandbox, false)))
       .orderBy(desc(attempts.startedAt));
     return rows;
