@@ -11,6 +11,8 @@ import { exams, results, users } from "@/db/schema";
 import { requireRole } from "@/lib/auth/dal";
 import { isAnswered } from "@/lib/scoring";
 import { AttemptService } from "@/services/attempts/attempt.service";
+import { GradingService } from "@/services/grading/grading.service";
+import { PublishPanel } from "../../results/[id]/publish-panel";
 import { SplitIncidents } from "../../monitoring/[id]/incident-list";
 import { GradeForm } from "./grade-form";
 
@@ -26,6 +28,7 @@ export default async function AttemptReviewPage({ params }: { params: Promise<{ 
     db.select().from(results).where(eq(results.attemptId, attempt.id)).limit(1),
     AttemptService.incidentsFor(examiner, { examId: attempt.examId, attemptId: attempt.id }),
   ]);
+  const check = attempt.isSandbox ? null : await GradingService.publishChecklist(examiner, attempt.examId);
   const locked = result?.status === "PUBLISHED";
   const finished = attempt.status !== "IN_PROGRESS";
   const pending = questions.filter(({ q, answer }) => q.type === "ESSAY" && isAnswered(answer?.response) && answer?.marksAwarded == null).length;
@@ -59,6 +62,17 @@ export default async function AttemptReviewPage({ params }: { params: Promise<{ 
         <p className="mb-4 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">{pending} written answer(s) need a mark before this result can be published.</p>
       )}
       {locked && <p className="mb-4 rounded-md border bg-muted p-3 text-sm">Results are published — grades are locked.</p>}
+
+      {check && finished && (
+        <section id="publish" aria-label={`Publish results for ${exam?.code}`} className="mb-6 scroll-mt-24">
+          <PublishPanel examId={attempt.examId} check={check} lastPublished={null} />
+          <p className="mt-2 text-right text-sm">
+            <Link href={`/examiner/results/${attempt.examId}`} className="font-medium text-primary hover:underline">
+              Open all {exam?.code} results and the exam report (PDF)
+            </Link>
+          </p>
+        </section>
+      )}
 
       <ol className="space-y-4">
         {questions.map(({ q, answer }) => {

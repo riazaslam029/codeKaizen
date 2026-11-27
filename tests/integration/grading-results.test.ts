@@ -157,6 +157,25 @@ describe("summaries, analytics and announcements", () => {
 });
 
 describe("publication rules (server-enforced)", () => {
+  it("publishes fully graded results while other candidates' essays are still pending", async () => {
+    const id = await createOpenExam(w);
+    const essay = (text: string) => ({ answers: [{ questionId: w.questions.essay.id, response: { text }, flagged: false, revision: 1 }] });
+    const a = await AttemptService.start(w.users.c1, id, { sandbox: false });
+    const b = await AttemptService.start(w.users.c2, id, { sandbox: false });
+    await AttemptService.saveAnswers(w.users.c1, a.attemptId, essay("Graded first"));
+    await AttemptService.saveAnswers(w.users.c2, b.attemptId, essay("Still waiting for a mark"));
+    await AttemptService.submit(w.users.c1, a.attemptId);
+    await AttemptService.submit(w.users.c2, b.attemptId);
+    await GradingService.gradeAnswer(w.users.ex1, { attemptId: a.attemptId, questionId: w.questions.essay.id, marks: 5, feedback: "" });
+    expect(await GradingService.publishChecklist(w.users.ex1, id)).toMatchObject({ readyToPublish: 1, needsGrading: 1 });
+    // No override needed: the graded result goes out, the ungraded one stays unpublished.
+    expect(await GradingService.publishResults(w.users.ex1, id)).toMatchObject({ published: 1, overridden: 0, awaitingGrading: 1 });
+    expect((await result(a.attemptId)).status).toBe("PUBLISHED");
+    expect((await result(b.attemptId)).status).not.toBe("PUBLISHED");
+    // Nothing graded left to publish → clear refusal instead of a silent no-op.
+    await expect(GradingService.publishResults(w.users.ex1, id)).rejects.toMatchObject({ status: 409, code: "GRADING_PENDING" });
+  });
+
   it("blocks publishing while written answers are pending, allows an explicit override, and withdrawal revokes codes", async () => {
     const id = await createOpenExam(w);
     const { attemptId } = await AttemptService.start(w.users.c1, id, { sandbox: false });

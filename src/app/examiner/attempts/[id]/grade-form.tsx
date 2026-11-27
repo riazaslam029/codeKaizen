@@ -37,7 +37,11 @@ export function GradeForm(props: {
     start(async () => {
       const r = await gradeAnswerAction({ attemptId: props.attemptId, questionId: props.questionId, marks: n, feedback });
       if (!r.ok) return void toast.error(r.error);
-      toast.success(r.data && r.data.pending > 0 ? `Saved · ${r.data.pending} written answer(s) left` : "Saved · attempt fully graded");
+      if (r.data && r.data.pending > 0) toast.success(`Saved · ${r.data.pending} written answer(s) left`);
+      else
+        toast.success("Saved · attempt fully graded — you can publish the result now", {
+          action: { label: "Publish", onClick: () => document.getElementById("publish")?.scrollIntoView({ behavior: "smooth", block: "start" }) },
+        });
       router.refresh();
     });
   }

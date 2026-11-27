@@ -146,20 +146,23 @@ export class GradingService {
   /**
    * Controlled publication (never automatic). Server-enforced rules:
    * - only finalised, real attempts are published, each gets (or keeps) a unique verification code;
-   * - if any written answer still needs a mark, publishing is REFUSED unless `override` is explicitly set,
-   *   in which case ungraded written answers count as 0 and that is recorded in the audit trail.
+   * - fully graded results are published immediately; attempts whose written answers still need a mark stay
+   *   unpublished unless `override` is set, in which case those answers count as 0 (recorded in the audit trail);
+   * - if the only unpublished attempts still need grading, the request is refused (409 GRADING_PENDING).
    */
   static async publishResults(actor: SessionUser, examId: string, opts: { override?: boolean } = {}) {
     const check = await this.publishChecklist(actor, examId);
-    if (check.needsGrading > 0 && !opts.override) {
-      throw new ApiError(409, "GRADING_PENDING", `${check.needsGrading} attempt(s) still have written answers to grade. Grade them first or publish with override.`);
-    }
     const rows = await db
       .select({ resultId: results.id, attemptId: results.attemptId, attemptStatus: attempts.status, code: results.verificationCode })
       .from(results)
       .innerJoin(attempts, eq(attempts.id, results.attemptId))
       .where(and(eq(results.examId, examId), ne(results.status, "PUBLISHED"), eq(attempts.isSandbox, false)));
+    // Fully graded results are always publishable, even while other candidates' essays are still being marked.
+    // Attempts with ungraded written answers are only included when the examiner explicitly overrides.
     const toPublish = rows.filter((r) => r.attemptStatus === "GRADED" || (opts.override && (r.attemptStatus === "SUBMITTED" || r.attemptStatus === "AUTO_SUBMITTED")));
+    if (toPublish.length === 0 && check.needsGrading > 0) {
+      throw new ApiError(409, "GRADING_PENDING", `${check.needsGrading} attempt(s) still have written answers to grade. Grade them first or publish with override.`);
+    }
     const now = new Date();
     await runBatch(
       toPublish.map((r) =>

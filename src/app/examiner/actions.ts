@@ -1,5 +1,6 @@
 "use server";
 
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
@@ -135,12 +136,21 @@ export async function gradeAnswerAction(input: unknown): Promise<ActionResult<{ 
       .object({ attemptId: id, questionId: id, marks: z.coerce.number().min(-100).max(100), feedback: z.string().trim().max(2000).default("") })
       .parse(input);
     const r = await GradingService.gradeAnswer(await staff(), data);
+    refresh();
     return r ? { score: r.score, pending: r.pending } : null;
   }, "Grade saved");
 }
 export async function publishResultsAction(examId: string, override = false): Promise<ActionResult<{ published: number; awaitingGrading: number; overridden: number }>> {
-  return runAction(async () => GradingService.publishResults(await staff(), id.parse(examId), { override: z.boolean().parse(override) }));
+  return runAction(async () => {
+    const r = await GradingService.publishResults(await staff(), id.parse(examId), { override: z.boolean().parse(override) });
+    refresh(); // re-render the page so the panel, badges and checklist show the new state at once
+    return r;
+  });
 }
 export async function unpublishResultsAction(examId: string): Promise<ActionResult<{ withdrawn: number }>> {
-  return runAction(async () => GradingService.unpublishResults(await staff(), id.parse(examId)));
+  return runAction(async () => {
+    const r = await GradingService.unpublishResults(await staff(), id.parse(examId));
+    refresh();
+    return r;
+  });
 }

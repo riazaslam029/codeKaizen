@@ -1,4 +1,4 @@
-import { PenLine } from "lucide-react";
+import { PenLine, Send } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -18,6 +18,12 @@ export default async function GradingPage() {
   const queue = await ResultsService.gradingQueue(examiner);
   const needs = queue.filter((q) => q.pending > 0);
   const rest = queue.filter((q) => q.pending === 0);
+  // Exams with fully graded results that candidates cannot see yet.
+  const ready = [...rest.filter((r) => r.resultStatus !== "PUBLISHED").reduce((m, r) => {
+    const e = m.get(r.examId) ?? { examId: r.examId, code: r.examCode, title: r.examTitle, count: 0 };
+    e.count += 1;
+    return m.set(r.examId, e);
+  }, new Map<string, { examId: string; code: string; title: string; count: number }>()).values()];
   const table = (rows: typeof queue) => (
     <Card className="overflow-hidden py-0 shadow-none">
       <Table>
@@ -49,6 +55,30 @@ export default async function GradingPage() {
   return (
     <>
       <PageHeader title="Grading" description="Choice and short-answer questions are marked automatically from each attempt's frozen marking scheme. Written responses need your mark; you may also correct any mark before publication." />
+      {ready.length > 0 && (
+        <section aria-labelledby="ready" className="mb-8">
+          <h2 id="ready" className="mb-3 text-lg font-semibold">Ready to publish ({ready.length})</h2>
+          <ul className="grid gap-3 md:grid-cols-2">
+            {ready.map((e) => (
+              <li key={e.examId}>
+                <Card className="flex-row items-center justify-between gap-3 px-5 py-4 shadow-none">
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium">{e.title}</span>
+                    <span className="block text-sm text-muted-foreground">
+                      <span className="font-mono">{e.code}</span> · {e.count} graded result(s) not yet visible to candidates
+                    </span>
+                  </span>
+                  <Button asChild size="sm">
+                    <Link href={`/examiner/results/${e.examId}`}>
+                      <Send className="size-4" aria-hidden /> Publish
+                    </Link>
+                  </Button>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <h2 className="mb-3 text-lg font-semibold">Needs grading ({needs.length})</h2>
       {needs.length === 0 ? <EmptyState icon={PenLine} title="All caught up" description="No written answers are waiting for a mark." /> : table(needs)}
       {rest.length > 0 && (
