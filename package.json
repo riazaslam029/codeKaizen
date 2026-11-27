@@ -12,11 +12,15 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "test:smoke": "tsx scripts/smoke-test.ts",
-    "test:e2e": "node --require ./scripts/test-env.cjs --import tsx scripts/e2e-exam-flow.ts",
+    "test:e2e": "playwright test",
     "db:migrate:prod": "tsx scripts/migrate.ts --env .env.neon.production --confirm-production",
     "db:status": "tsx scripts/db-status.ts",
-    "db:status:prod": "tsx scripts/db-status.ts --env .env.neon.production"
+    "db:status:prod": "tsx scripts/db-status.ts --env .env.neon.production",
+    "test": "vitest run --project unit",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:coverage": "vitest run --project unit --project integration --coverage",
+    "test:all": "vitest run && playwright test"
   },
   "dependencies": {
     "@neon/config": "^1.14.8",
@@ -42,16 +46,20 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/turbopack": "4.3.3",
-    "@types/node": "^20",
+    "@types/node": "^22.20.7",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^5.1.2",
     "dotenv": "^18.0.10",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",
     "tsx": "^4.23.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.1.2"
   }
 }

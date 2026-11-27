@@ -82,8 +82,12 @@ Production migrations (additive, recorded, re-runnable): `npm run db:status:prod
 | `npm run db:migrate` / `db:status` | apply / inspect migrations on **dev** |
 | `npm run db:migrate:prod` / `db:status:prod` | apply / inspect migrations on **production** (explicit) |
 | `npm run db:seed` | demo data, **dev branch only** |
-| `npm run test:smoke` | 29 auth/authorisation checks against a running server (`BASE_URL`) |
-| `npm run test:e2e` | 47 end-to-end checks of the full exam lifecycle (creates and removes its own fixture) |
+| `npm test` | unit tests (Vitest) |
+| `npm run test:integration` | services against the Neon **dev** branch (Vitest) |
+| `npm run test:e2e` | builds, starts and drives the app in Chrome: journeys, security, accessibility, responsive, offline (Playwright) |
+| `npm run test:coverage` | unit + integration with v8 coverage → `coverage/index.html` |
+
+See [tests/README.md](tests/README.md) for what each suite covers and how test data is isolated.
 
 ## Deployment (Vercel)
 Production env: `DATABASE_URL` (production pooled) and `AUTH_SECRET` (unique). Preview env may point at the `dev` branch. Migrate with `npm run db:migrate:prod` before promoting a deploy. Never set `SEED_*` on Vercel.
