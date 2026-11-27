@@ -3,52 +3,33 @@ import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import type { BatchItem } from "drizzle-orm/batch";
 import { eq, inArray, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import { runBatch } from "@/db/batch";
 import { enrollments, questions, users } from "@/db/schema";
 import type { SessionUser } from "@/lib/auth/dal";
-import { csvToObjects } from "@/lib/csv";
 import { ApiError } from "@/lib/http";
+import {
+  MAX_IMPORT_BYTES,
+  MAX_IMPORT_ROWS,
+  parseImportRows,
+  type RowDuplicate,
+  type RowError,
+  validateCandidateRows,
+  validateQuestionRows,
+} from "@/lib/import-validation";
 import { assertCanManageExam } from "@/lib/permissions";
-import { questionSchema } from "@/lib/validations/question";
-import { password as passwordRule } from "@/lib/validations/user";
 import { audit } from "@/services/audit";
 import { QuestionService } from "@/services/questions/question.service";
-
-export const MAX_IMPORT_ROWS = 200;
-export const MAX_IMPORT_BYTES = 1_000_000;
 
 export type ImportSummary = {
   total: number;
   created: number;
-  duplicates: { row: number; value: string; reason: string }[];
-  errors: { row: number; message: string }[];
+  duplicates: RowDuplicate[];
+  errors: RowError[];
   committed: boolean;
 };
 
-function parseRows(format: "csv" | "json", content: string): Record<string, unknown>[] {
-  if (content.length > MAX_IMPORT_BYTES) throw ApiError.badRequest("File is larger than 1 MB");
-  let rows: unknown;
-  if (format === "json") {
-    try {
-      rows = JSON.parse(content);
-    } catch {
-      throw ApiError.badRequest("The file is not valid JSON");
-    }
-    if (!Array.isArray(rows)) throw ApiError.badRequest("JSON must be an array of objects");
-  } else rows = csvToObjects(content);
-  const list = rows as Record<string, unknown>[];
-  if (list.length === 0) throw ApiError.badRequest("The file contains no rows");
-  if (list.length > MAX_IMPORT_ROWS) throw ApiError.badRequest(`At most ${MAX_IMPORT_ROWS} rows per import`);
-  return list;
-}
-
-const candidateRow = z.object({
-  name: z.string().trim().min(2, "name is required").max(120),
-  email: z.string().trim().toLowerCase().pipe(z.email("email is invalid")),
-  password: z.union([z.literal(""), passwordRule]).optional(),
-});
+export { MAX_IMPORT_BYTES, MAX_IMPORT_ROWS };
 
 export class ImportService {
   /**
@@ -61,30 +42,10 @@ export class ImportService {
     input: { format: "csv" | "json"; content: string; defaultPassword?: string; examId?: string },
   ): Promise<ImportSummary> {
     if (input.examId) await assertCanManageExam(actor, input.examId);
-    const rows = parseRows(input.format, input.content);
-    const summary: ImportSummary = { total: rows.length, created: 0, duplicates: [], errors: [], committed: false };
-
-    const parsed: { row: number; name: string; email: string; password: string }[] = [];
-    const seen = new Set<string>();
-    rows.forEach((raw, i) => {
-      const row = i + 2; // header is row 1 in CSV terms
-      const r = candidateRow.safeParse(raw);
-      if (!r.success) {
-        summary.errors.push({ row, message: r.error.issues.map((x) => x.message).join("; ") });
-        return;
-      }
-      const pw = r.data.password || input.defaultPassword || "";
-      if (pw.length < 8) {
-        summary.errors.push({ row, message: "no password column and no default password (min 8 characters)" });
-        return;
-      }
-      if (seen.has(r.data.email)) {
-        summary.duplicates.push({ row, value: r.data.email, reason: "repeated in file" });
-        return;
-      }
-      seen.add(r.data.email);
-      parsed.push({ row, name: r.data.name, email: r.data.email, password: pw });
-    });
+    const rows = parseImportRows(input.format, input.content);
+    const checked = validateCandidateRows(rows, input.defaultPassword);
+    const summary: ImportSummary = { total: rows.length, created: 0, duplicates: checked.duplicates, errors: checked.errors, committed: false };
+    const parsed = checked.valid;
 
     if (parsed.length) {
       const existing = await db
@@ -122,44 +83,10 @@ export class ImportService {
    */
   static async importQuestions(actor: SessionUser, input: { format: "csv" | "json"; content: string }): Promise<ImportSummary> {
     if (actor.role !== "EXAMINER" && actor.role !== "ADMIN") throw ApiError.forbidden();
-    const rows = parseRows(input.format, input.content);
-    const summary: ImportSummary = { total: rows.length, created: 0, duplicates: [], errors: [], committed: false };
-    const split = (v: unknown) =>
-      Array.isArray(v) ? v.map(String) : typeof v === "string" && v.trim() ? v.split("|").map((s) => s.trim()) : [];
-
-    const valid: { row: number; cols: ReturnType<typeof QuestionService.columns>; key: string }[] = [];
-    const seen = new Set<string>();
-    rows.forEach((raw, i) => {
-      const row = i + 2;
-      const type = String(raw.type ?? "").trim().toUpperCase();
-      const optionTexts = split(raw.options);
-      const candidate = {
-        type,
-        prompt: raw.prompt,
-        options: type === "TRUE_FALSE" && optionTexts.length === 0 ? [{ id: "a", text: "True" }, { id: "b", text: "False" }] : optionTexts.map((text, k) => ({ id: String.fromCharCode(97 + k), text })),
-        correctOptionIds: split(raw.correct).map((c) => c.toLowerCase()),
-        accepted: split(raw.accepted),
-        marks: raw.marks ?? 1,
-        negativeMarks: raw.negative_marks ?? raw.negativeMarks ?? 0,
-        multiScoring: String(raw.multi_scoring ?? raw.multiScoring ?? "ALL_OR_NOTHING").toUpperCase() || "ALL_OR_NOTHING",
-        difficulty: String(raw.difficulty ?? "MEDIUM").toUpperCase() || "MEDIUM",
-        subject: raw.subject ?? "",
-        topic: raw.topic ?? "",
-        explanation: raw.explanation ?? "",
-      };
-      const r = questionSchema.safeParse(candidate);
-      if (!r.success) {
-        summary.errors.push({ row, message: r.error.issues.map((x) => `${x.path.join(".") || "row"}: ${x.message}`).join("; ") });
-        return;
-      }
-      const key = r.data.prompt.toLowerCase().replace(/\s+/g, " ");
-      if (seen.has(key)) {
-        summary.duplicates.push({ row, value: r.data.prompt.slice(0, 80), reason: "repeated in file" });
-        return;
-      }
-      seen.add(key);
-      valid.push({ row, cols: QuestionService.columns(r.data), key });
-    });
+    const rows = parseImportRows(input.format, input.content);
+    const checked = validateQuestionRows(rows);
+    const summary: ImportSummary = { total: rows.length, created: 0, duplicates: checked.duplicates, errors: checked.errors, committed: false };
+    const valid = checked.valid.map((v) => ({ row: v.row, key: v.key, cols: QuestionService.columns(v.input) }));
 
     if (valid.length) {
       const existing = await db

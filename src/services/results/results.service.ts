@@ -2,22 +2,16 @@ import "server-only";
 import { and, asc, desc, eq, gte, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { answers, attempts, auditLogs, exams, results, users } from "@/db/schema";
-import type { AttemptQuestionSnapshot } from "@/db/schema/types";
 import type { SessionUser } from "@/lib/auth/dal";
 import { ApiError } from "@/lib/http";
 import { assertCanManageExam } from "@/lib/permissions";
-import { isAnswered, round2 } from "@/lib/scoring";
+import { computeQuestionAnalytics, summarizeResults } from "@/lib/analytics";
+import { maskName } from "@/lib/privacy";
+import { isAnswered } from "@/lib/scoring";
 import { AttemptService } from "@/services/attempts/attempt.service";
 import { GradingService } from "@/services/grading/grading.service";
 
 const FINAL = ["SUBMITTED", "AUTO_SUBMITTED", "GRADED"] as const;
-
-function median(xs: number[]) {
-  if (!xs.length) return 0;
-  const s = [...xs].sort((a, b) => a - b);
-  const m = Math.floor(s.length / 2);
-  return s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
-}
 
 export class ResultsService {
   /** Per-exam results with grading progress. Sandbox attempts never have result rows. */
@@ -49,26 +43,7 @@ export class ResultsService {
       .where(eq(results.examId, examId))
       .orderBy(desc(results.percentage));
 
-    const pcts = rows.map((r) => r.percentage);
-    const buckets = Array.from({ length: 10 }, (_, i) => ({
-      range: i === 9 ? "90–100" : `${i * 10}–${i * 10 + 9}`,
-      count: pcts.filter((p) => Math.min(9, Math.floor(p / 10)) === i).length,
-    }));
-    return {
-      rows,
-      stats: {
-        count: rows.length,
-        average: rows.length ? round2(pcts.reduce((a, b) => a + b, 0) / rows.length) : 0,
-        median: round2(median(pcts)),
-        highest: rows.length ? Math.max(...pcts) : 0,
-        lowest: rows.length ? Math.min(...pcts) : 0,
-        passRate: rows.length ? round2((rows.filter((r) => r.passed).length / rows.length) * 100) : 0,
-        passed: rows.filter((r) => r.passed).length,
-        published: rows.filter((r) => r.status === "PUBLISHED").length,
-        awaitingGrading: rows.filter((r) => r.attemptStatus !== "GRADED").length,
-      },
-      distribution: buckets,
-    };
+    return { rows, ...summarizeResults(rows) };
   }
 
   /** Finalised attempts in the examiner's exams that still contain un-graded written answers. */
@@ -117,70 +92,7 @@ export class ResultsService {
       .select({ attemptId: answers.attemptId, questionId: answers.questionId, response: answers.response, marks: answers.marksAwarded })
       .from(answers)
       .where(inArray(answers.attemptId, tries.map((t) => t.id)));
-    const key = (a: string, q: string) => `${a}:${q}`;
-    const ansMap = new Map(ans.map((a) => [key(a.attemptId, a.questionId), a]));
-
-    type Acc = {
-      q: AttemptQuestionSnapshot;
-      seen: number;
-      answered: number;
-      fullMarks: number;
-      marksSum: number;
-      optionCounts: Map<string, number>;
-      wrongCounts: Map<string, number>;
-    };
-    const acc = new Map<string, Acc>();
-    for (const t of tries) {
-      for (const q of t.snapshot) {
-        const e =
-          acc.get(q.questionId) ??
-          { q, seen: 0, answered: 0, fullMarks: 0, marksSum: 0, optionCounts: new Map(), wrongCounts: new Map() };
-        e.seen++;
-        const a = ansMap.get(key(t.id, q.questionId));
-        if (a && isAnswered(a.response)) {
-          e.answered++;
-          if (a.response && "optionIds" in a.response) {
-            const correct = new Set(q.correctAnswer && "optionIds" in q.correctAnswer ? q.correctAnswer.optionIds : []);
-            for (const id of a.response.optionIds) {
-              e.optionCounts.set(id, (e.optionCounts.get(id) ?? 0) + 1);
-              if (!correct.has(id)) e.wrongCounts.set(id, (e.wrongCounts.get(id) ?? 0) + 1);
-            }
-          }
-        }
-        const m = a?.marks ?? 0;
-        e.marksSum += Math.max(0, m);
-        if (m >= q.marks) e.fullMarks++;
-        acc.set(q.questionId, e);
-      }
-    }
-
-    const questions = [...acc.values()].map((e) => {
-      const facility = e.seen ? e.fullMarks / e.seen : 0;
-      const correctIds = new Set(e.q.correctAnswer && "optionIds" in e.q.correctAnswer ? e.q.correctAnswer.optionIds : []);
-      const topWrong = [...e.wrongCounts.entries()].sort((a, b) => b[1] - a[1])[0];
-      return {
-        questionId: e.q.questionId,
-        type: e.q.type,
-        prompt: e.q.prompt,
-        marks: e.q.marks,
-        attempts: e.seen,
-        answered: e.answered,
-        skipped: e.seen - e.answered,
-        skipRate: e.seen ? round2(((e.seen - e.answered) / e.seen) * 100) : 0,
-        correctRate: round2(facility * 100),
-        averageMarksPct: e.seen ? round2((e.marksSum / (e.seen * e.q.marks)) * 100) : 0,
-        difficulty: e.seen < 3 ? "Insufficient data" : facility >= 0.7 ? "Easy" : facility >= 0.3 ? "Moderate" : "Hard",
-        commonWrong: topWrong
-          ? { text: e.q.options?.find((o) => o.id === topWrong[0])?.text ?? topWrong[0], count: topWrong[1] }
-          : null,
-        distribution: (e.q.options ?? []).map((o) => ({
-          id: o.id,
-          text: o.text,
-          count: e.optionCounts.get(o.id) ?? 0,
-          correct: correctIds.has(o.id),
-        })),
-      };
-    });
+    const questions = computeQuestionAnalytics(tries, ans);
     return { attempts: tries.length, questions };
   }
 
@@ -378,12 +290,4 @@ export class ResultsService {
       .where(actor.role === "ADMIN" ? undefined : eq(exams.createdById, actor.id))
       .orderBy(asc(exams.code));
   }
-}
-
-function maskName(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((p, i) => (i === 0 ? p : `${p[0]}.`))
-    .join(" ");
 }

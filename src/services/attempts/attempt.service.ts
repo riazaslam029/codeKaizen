@@ -17,6 +17,7 @@ import {
 import type { IncidentType } from "@/db/schema/enums";
 import type { AnswerResponse, AttemptQuestionSnapshot, ScratchpadData } from "@/db/schema/types";
 import type { SessionUser } from "@/lib/auth/dal";
+import { computeExpiry, DEADLINE_GRACE_MS, isPastDeadline, MIN_START_WINDOW_MS } from "@/lib/attempt-timing";
 import { examPhase } from "@/lib/exam-phase";
 import { ApiError } from "@/lib/http";
 import { assertCanManageExam } from "@/lib/permissions";
@@ -26,11 +27,7 @@ import { audit } from "@/services/audit";
 import { toCandidateQuestions } from "@/services/exams/candidate-view";
 import { GradingService } from "@/services/grading/grading.service";
 
-/**
- * Network grace for in-flight requests. A save that LEAVES the browser before the deadline may
- * arrive a moment later; anything later than this is rejected. Never extends the exam itself.
- */
-export const DEADLINE_GRACE_MS = 3_000;
+export { DEADLINE_GRACE_MS };
 
 type AttemptRow = typeof attempts.$inferSelect;
 
@@ -67,7 +64,7 @@ export class AttemptService {
       .where(and(eq(attempts.examId, examId), eq(attempts.candidateId, actor.id), eq(attempts.status, "IN_PROGRESS")))
       .limit(1);
     if (open) {
-      if (Date.now() <= open.expiresAt.getTime() + DEADLINE_GRACE_MS) return { attemptId: open.id, resumed: true };
+      if (!isPastDeadline(open.expiresAt, Date.now())) return { attemptId: open.id, resumed: true };
       await this.finalize(open.id, "AUTO_SUBMITTED");
     }
 
@@ -86,10 +83,8 @@ export class AttemptService {
     if (snapshot.length === 0) throw ApiError.badRequest("This examination has no questions");
 
     const now = new Date();
-    const byDuration = now.getTime() + exam.durationMinutes * 60_000;
-    // Real attempts can never run past the exam window; sandbox previews get the full duration.
-    const expiresAt = new Date(opts.sandbox ? byDuration : Math.min(byDuration, exam.endsAt.getTime()));
-    if (expiresAt.getTime() - now.getTime() < 30_000) throw ApiError.forbidden("Too little time remains in the examination window");
+    const expiresAt = computeExpiry(now, exam.durationMinutes, exam.endsAt, opts.sandbox);
+    if (expiresAt.getTime() - now.getTime() < MIN_START_WINDOW_MS) throw ApiError.forbidden("Too little time remains in the examination window");
 
     const [prev] = await db
       .select({ n: count() })
@@ -165,7 +160,7 @@ export class AttemptService {
   static async getState(actor: SessionUser, attemptId: string, clientSession?: string) {
     let a = await this.loadOwned(actor, attemptId);
 
-    if (a.status === "IN_PROGRESS" && Date.now() > a.expiresAt.getTime() + DEADLINE_GRACE_MS) {
+    if (a.status === "IN_PROGRESS" && isPastDeadline(a.expiresAt, Date.now())) {
       await this.finalize(a.id, "AUTO_SUBMITTED");
       a = await this.loadOwned(actor, attemptId);
     }
@@ -239,7 +234,7 @@ export class AttemptService {
   ) {
     const a = await this.loadOwned(actor, attemptId);
     if (a.status !== "IN_PROGRESS") throw new ApiError(409, "ATTEMPT_CLOSED", "This attempt has already been submitted");
-    if (Date.now() > a.expiresAt.getTime() + DEADLINE_GRACE_MS) {
+    if (isPastDeadline(a.expiresAt, Date.now())) {
       if (!a.isSandbox) {
         await this.recordIncident(a, "LATE_ANSWER_REJECTED", "LOW", { count: input.answers.length });
       }
@@ -312,7 +307,7 @@ export class AttemptService {
       if (!a.isSandbox) await this.recordIncident(a, "DUPLICATE_SUBMISSION", "LOW", { note: "Submit received for an attempt that was already finalised" });
       return { status: a.status, alreadySubmitted: true };
     }
-    const late = Date.now() > a.expiresAt.getTime() + DEADLINE_GRACE_MS;
+    const late = isPastDeadline(a.expiresAt, Date.now());
     const outcome = await this.finalize(a.id, late ? "AUTO_SUBMITTED" : "SUBMITTED");
     if (outcome.alreadyFinal && !a.isSandbox) {
       await this.recordIncident(a, "DUPLICATE_SUBMISSION", "LOW", { note: "Concurrent submit requests" });
