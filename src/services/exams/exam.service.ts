@@ -228,6 +228,38 @@ export class ExamService {
     await audit(actor.id, "exam.close", `${actor.name} closed ${exam.code}`, { type: "exam", id: examId });
   }
 
+  /**
+   * Archive: hides a finished/unused exam from day-to-day lists while keeping every attempt,
+   * result and report intact. Refused while the exam is live so no candidate is cut off.
+   */
+  static async archive(actor: SessionUser, examId: string) {
+    const { exam } = await this.getForExaminer(actor, examId);
+    if (exam.status === "ARCHIVED") throw ApiError.conflict("Exam is already archived");
+    if (exam.phase === "ONGOING") throw ApiError.conflict("Close the examination before archiving it — candidates may be sitting it");
+    const [open] = await db
+      .select({ n: count() })
+      .from(attempts)
+      .where(and(eq(attempts.examId, examId), eq(attempts.status, "IN_PROGRESS"), eq(attempts.isSandbox, false)));
+    if ((open?.n ?? 0) > 0) throw ApiError.conflict("Attempts are still in progress");
+    await db.update(exams).set({ status: "ARCHIVED" }).where(eq(exams.id, examId));
+    await audit(actor.id, "exam.archive", `${actor.name} archived ${exam.code}`, { type: "exam", id: examId });
+  }
+
+  /**
+   * Permanent delete — only for drafts that no candidate ever attempted. Sandbox previews are
+   * removed with it; questions stay in the bank. One transaction.
+   */
+  static async remove(actor: SessionUser, examId: string) {
+    const { exam, attemptCount } = await this.getForExaminer(actor, examId);
+    if (exam.status !== "DRAFT") throw ApiError.conflict("Only draft examinations can be deleted — archive published ones instead");
+    if (attemptCount > 0) throw ApiError.conflict("Candidates have attempted this examination; archive it instead");
+    await runBatch([
+      db.delete(attempts).where(and(eq(attempts.examId, examId), eq(attempts.isSandbox, true))),
+      db.delete(exams).where(eq(exams.id, examId)),
+    ]);
+    await audit(actor.id, "exam.delete", `${actor.name} deleted draft ${exam.code}`, { type: "exam", id: examId });
+  }
+
   /* ───────────── paper composition (draft only) ───────────── */
 
   private static async assertDraft(actor: SessionUser, examId: string) {

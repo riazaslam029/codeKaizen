@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { ActionButton } from "@/components/shared/action-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ImportDialog } from "@/components/shared/import-dialog";
+import { Pagination, usePagination } from "@/components/shared/pagination";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -44,6 +45,8 @@ export function QuestionBank({ rows, currentUserId, subjects }: { rows: Row[]; c
     [rows, query, type, difficulty, subject],
   );
 
+  const pager = usePagination(shown, 15, `${query}|${type}|${difficulty}|${subject}`);
+
   return (
     <>
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -53,14 +56,14 @@ export function QuestionBank({ rows, currentUserId, subjects }: { rows: Row[]; c
         </div>
         <div className="grid grid-cols-3 gap-2 lg:flex">
           <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="lg:w-40" aria-label="Filter by type"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full min-w-0 lg:w-40" aria-label="Filter by type"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All types</SelectItem>
               {QUESTION_TYPES.map((t) => <SelectItem key={t} value={t}>{QUESTION_TYPE_LABEL[t]}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={difficulty} onValueChange={setDifficulty}>
-            <SelectTrigger className="lg:w-36" aria-label="Filter by difficulty"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full min-w-0 lg:w-36" aria-label="Filter by difficulty"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">Any difficulty</SelectItem>
               <SelectItem value="EASY">Easy</SelectItem>
@@ -69,7 +72,7 @@ export function QuestionBank({ rows, currentUserId, subjects }: { rows: Row[]; c
             </SelectContent>
           </Select>
           <Select value={subject} onValueChange={setSubject}>
-            <SelectTrigger className="lg:w-40" aria-label="Filter by category"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full min-w-0 lg:w-40" aria-label="Filter by category"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All categories</SelectItem>
               {subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -99,7 +102,7 @@ export function QuestionBank({ rows, currentUserId, subjects }: { rows: Row[]; c
         <EmptyState icon={Library} title={rows.length ? "No questions match" : "The bank is empty"} description={rows.length ? "Try different filters." : "Create questions or import a CSV/JSON file."} />
       ) : (
         <Card className="divide-y py-0 shadow-none">
-          {shown.map((q) => {
+          {pager.slice.map((q) => {
             const mine = q.authorId === currentUserId;
             return (
               <div key={q.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start">
@@ -135,6 +138,7 @@ export function QuestionBank({ rows, currentUserId, subjects }: { rows: Row[]; c
           })}
         </Card>
       )}
+      <Pagination {...pager} noun="questions" />
       {open && <QuestionDialog key={editing?.id ?? "new"} question={editing} open={open} onOpenChange={setOpen} />}
     </>
   );

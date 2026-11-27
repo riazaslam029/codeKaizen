@@ -26,7 +26,7 @@ export function MobileNav({ items, sectionLabel }: { items: NavItem[]; sectionLa
           </SheetTitle>
         </SheetHeader>
         <nav aria-label="Main" className="px-3 py-4">
-          <p className="px-3 pb-2 font-mono text-[10px] uppercase tracking-[0.16em] text-sidebar-foreground/60">
+          <p className="px-3 pb-2 font-mono text-[10px] uppercase tracking-[0.16em] text-sidebar-foreground/90">
             {sectionLabel}
           </p>
           <SidebarNav items={items} onNavigate={() => setOpen(false)} />

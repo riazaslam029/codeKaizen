@@ -40,7 +40,7 @@ export default async function AttemptReviewPage({ params }: { params: Promise<{ 
           <p className="font-mono text-sm text-muted-foreground">{exam?.code} · attempt {attempt.attemptNumber}</p>
           <h1 className="mt-1 text-2xl font-semibold">{candidate?.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {candidate?.email} · started <LocalTime value={attempt.startedAt} /> · deadline <LocalTime value={attempt.expiresAt} mode="time" />
+            {candidate?.email} · started <LocalTime value={attempt.startedAt} /> · deadline <LocalTime value={attempt.expiresAt} />
             {attempt.submittedAt && <> · submitted <LocalTime value={attempt.submittedAt} mode="time" /></>}
           </p>
         </div>

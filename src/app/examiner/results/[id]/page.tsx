@@ -75,9 +75,9 @@ export default async function ExamResultsPage({ params }: { params: Promise<{ id
               <TableHeader>
                 <TableRow className="bg-muted/50 hover:bg-muted/50">
                   <TableHead className="pl-5">Candidate</TableHead>
-                  <TableHead className="text-right">Marks</TableHead>
+                  <TableHead className="hidden text-right md:table-cell">Marks</TableHead>
                   <TableHead className="text-right">%</TableHead>
-                  <TableHead>Outcome</TableHead>
+                  <TableHead className="hidden sm:table-cell">Outcome</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="pr-5 text-right"><span className="sr-only">Actions</span></TableHead>
                 </TableRow>
@@ -89,9 +89,9 @@ export default async function ExamResultsPage({ params }: { params: Promise<{ id
                       <Link href={`/examiner/attempts/${r.attemptId}`} className="font-medium hover:underline">{r.name}</Link>
                       <span className="block text-xs text-muted-foreground">{r.email}</span>
                     </TableCell>
-                    <TableCell className="tabular text-right">{r.score}/{r.maxScore}</TableCell>
+                    <TableCell className="tabular hidden text-right md:table-cell">{r.score}/{r.maxScore}</TableCell>
                     <TableCell className="tabular text-right font-medium">{r.percentage.toFixed(1)}</TableCell>
-                    <TableCell><StatusBadge value={r.passed ? "PASS" : "FAIL"} /></TableCell>
+                    <TableCell className="hidden sm:table-cell"><StatusBadge value={r.passed ? "PASS" : "FAIL"} /></TableCell>
                     <TableCell>
                       {r.attemptStatus !== "GRADED" ? <span className="text-sm text-[oklch(0.5_0.13_65)]">Needs grading</span> : <StatusBadge value={r.status} />}
                       {r.publishedAt && <span className="block text-xs text-muted-foreground"><LocalTime value={r.publishedAt} mode="date" /></span>}

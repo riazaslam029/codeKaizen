@@ -21,12 +21,12 @@ export function AppShell({ role, children }: { role: UserRole; children: ReactNo
           <Brand inverted />
         </div>
         <nav aria-label="Main" className="flex-1 overflow-y-auto px-3 py-5">
-          <p className="px-3 pb-2 font-mono text-[10px] uppercase tracking-[0.16em] text-sidebar-foreground/60">
+          <p className="px-3 pb-2 font-mono text-[10px] uppercase tracking-[0.16em] text-sidebar-foreground/90">
             {nav.label}
           </p>
           <SidebarNav items={nav.items} />
         </nav>
-        <p className="border-t border-sidebar-border px-5 py-4 text-xs text-sidebar-foreground/60">
+        <p className="border-t border-sidebar-border px-5 py-4 text-xs text-sidebar-foreground/90">
           Sessions expire after 8 hours.
         </p>
       </aside>

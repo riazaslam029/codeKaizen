@@ -6,6 +6,7 @@ import { useMemo, useState, useTransition, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Field } from "@/components/shared/field";
 import { LocalTime } from "@/components/shared/local-time";
+import { Pagination, usePagination } from "@/components/shared/pagination";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,6 +36,8 @@ export function UsersManager({ users, currentUserId }: { users: U[]; currentUser
       ),
     [users, query, roleFilter],
   );
+
+  const pager = usePagination(shown, 20, `${query}|${roleFilter}`);
 
   function act(fn: () => Promise<{ ok: boolean; error?: string; message?: string }>) {
     start(async () => {
@@ -91,10 +94,10 @@ export function UsersManager({ users, currentUserId }: { users: U[]; currentUser
                 </TableCell>
               </TableRow>
             )}
-            {shown.map((u) => {
+            {pager.slice.map((u) => {
               const self = u.id === currentUserId;
               return (
-                <TableRow key={u.id} className={u.isActive ? undefined : "opacity-60"}>
+                <TableRow key={u.id} className={u.isActive ? undefined : "bg-muted/40"}>
                   <TableCell className="pl-5">
                     <span className="block font-medium">
                       {u.name} {self && <span className="text-xs font-normal text-muted-foreground">(you)</span>}
@@ -139,6 +142,7 @@ export function UsersManager({ users, currentUserId }: { users: U[]; currentUser
           </TableBody>
         </Table>
       </Card>
+      <Pagination {...pager} noun="users" />
 
       <UserDialog
         key={editing === "new" ? "new" : (editing?.id ?? "closed")}

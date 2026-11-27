@@ -51,7 +51,7 @@ export default async function ExaminerOverview() {
                   <li key={e.id} className="flex items-center justify-between gap-3 py-3">
                     <span>
                       <span className="block text-sm font-medium">{e.title}</span>
-                      <span className="block text-xs text-muted-foreground">Closes <LocalTime value={e.endsAt} mode="time" /> · {e.candidateCount} enrolled</span>
+                      <span className="block text-xs text-muted-foreground">Closes <LocalTime value={e.endsAt} /> · {e.candidateCount} enrolled</span>
                     </span>
                     <Button size="sm" asChild><Link href={`/examiner/monitoring/${e.id}`}>Monitor</Link></Button>
                   </li>

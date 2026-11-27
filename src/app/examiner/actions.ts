@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
 import { announcements } from "@/db/schema";
@@ -46,6 +47,19 @@ export async function closeExamAction(examId: string): Promise<ActionResult<null
     await ExamService.close(await staff(), id.parse(examId));
     return null;
   }, "Examination closed");
+}
+
+export async function archiveExamAction(examId: string): Promise<ActionResult<null>> {
+  return runAction(async () => {
+    await ExamService.archive(await staff(), id.parse(examId));
+    return null;
+  }, "Examination archived");
+}
+export async function deleteExamAction(examId: string): Promise<ActionResult<null>> {
+  return runAction(async () => {
+    await ExamService.remove(await staff(), id.parse(examId));
+    redirect("/examiner/exams");
+  }, "Examination deleted");
 }
 
 /* ── paper ── */

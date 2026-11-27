@@ -501,17 +501,15 @@ export function ExamWorkspace({ initial, initialPrefs, backHref }: { initial: At
   );
 }
 
+/** Controlled by the synced answer state, so recovered/refreshed answers always show the latest revision. */
 function WrittenAnswer({ value, onChange, long }: { value: string; onChange: (v: string) => void; long: boolean }) {
-  const [text, setText] = useState(value);
+  const text = value;
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   return (
     <div>
       <Textarea
         value={text}
-        onChange={(e) => {
-          setText(e.target.value);
-          onChange(e.target.value);
-        }}
+        onChange={(e) => onChange(e.target.value)}
         rows={long ? 12 : 3}
         maxLength={20_000}
         placeholder={long ? "Write your answer…" : "Type your answer"}

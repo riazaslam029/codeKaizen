@@ -22,7 +22,7 @@ export function Brand({ className, inverted = false }: { className?: string; inv
         <span
           className={cn(
             "block font-mono text-[10px] uppercase tracking-[0.18em]",
-            inverted ? "text-sidebar-foreground/70" : "text-muted-foreground",
+            inverted ? "text-sidebar-foreground/90" : "text-muted-foreground",
           )}
         >
           Exams

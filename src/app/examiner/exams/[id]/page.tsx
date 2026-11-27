@@ -1,4 +1,4 @@
-import { ArrowLeft, BarChart3, Eye, MonitorDot, Trophy } from "lucide-react";
+import { Archive, ArrowLeft, BarChart3, Eye, MonitorDot, Trash2, Trophy } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
@@ -14,7 +14,7 @@ import { requireRole } from "@/lib/auth/dal";
 import { formatDuration } from "@/lib/format";
 import { EnrollmentService, ExamService } from "@/services/exams/exam.service";
 import { QuestionService } from "@/services/questions/question.service";
-import { closeExamAction, publishExamAction, unpublishExamAction } from "../../actions";
+import { archiveExamAction, closeExamAction, deleteExamAction, publishExamAction, unpublishExamAction } from "../../actions";
 import { ExamForm } from "../exam-form";
 import { AnnouncementPanel } from "./announcement-panel";
 import { EnrollmentManager } from "./enrollment-manager";
@@ -88,6 +88,34 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ id:
               }}
             >
               Close
+            </ActionButton>
+          )}
+          {exam.phase !== "ONGOING" && exam.status !== "ARCHIVED" && exam.status !== "DRAFT" && (
+            <ActionButton
+              variant="outline"
+              action={archiveExamAction.bind(null, id)}
+              confirm={{
+                title: "Archive this examination?",
+                description: "It moves out of active lists. Attempts, results and reports are kept and remain viewable.",
+                confirmLabel: "Archive",
+              }}
+            >
+              <Archive className="size-4" aria-hidden /> Archive
+            </ActionButton>
+          )}
+          {isDraft && attemptCount === 0 && (
+            <ActionButton
+              variant="ghost"
+              className="text-destructive hover:text-destructive"
+              action={deleteExamAction.bind(null, id)}
+              confirm={{
+                title: "Delete this draft permanently?",
+                description: "The draft, its enrolments and any sandbox previews are removed. Questions stay in the bank. This cannot be undone.",
+                confirmLabel: "Delete draft",
+                destructive: true,
+              }}
+            >
+              <Trash2 className="size-4" aria-hidden /> Delete
             </ActionButton>
           )}
         </div>

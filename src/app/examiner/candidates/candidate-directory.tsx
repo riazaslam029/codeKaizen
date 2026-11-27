@@ -105,7 +105,7 @@ export function CandidateDirectory({ candidates, exams }: { candidates: C[]; exa
             </TableHeader>
             <TableBody>
               {shown.map((c) => (
-                <TableRow key={c.id} className={c.isActive ? undefined : "opacity-60"}>
+                <TableRow key={c.id} className={c.isActive ? undefined : "bg-muted/40"}>
                   <TableCell className="pl-5">
                     <span className="block font-medium">{c.name}</span>
                     <span className="block text-xs text-muted-foreground">{c.email}{!c.isActive && " · disabled"}</span>

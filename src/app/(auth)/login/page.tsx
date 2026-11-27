@@ -1,5 +1,6 @@
 import { LockKeyhole, ShieldCheck, Timer } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Brand } from "@/components/layout/brand";
 import { LoginForm } from "./login-form";
@@ -38,7 +39,7 @@ export default function LoginPage() {
             ))}
           </ul>
         </div>
-        <p className="relative font-mono text-xs text-sidebar-foreground/60">TechnoVerse 5.0 · Web-e-Thon</p>
+        <p className="relative font-mono text-xs text-sidebar-foreground/90">TechnoVerse 5.0 · Web-e-Thon</p>
       </section>
 
       <section className="flex items-center justify-center px-5 py-12 sm:px-8">
@@ -49,6 +50,12 @@ export default function LoginPage() {
           <Suspense>
             <LoginForm />
           </Suspense>
+          <p className="mt-8 border-t pt-5 text-sm text-muted-foreground">
+            Checking a result report?{" "}
+            <Link href="/verify" className="font-medium text-primary hover:underline">
+              Verify a report
+            </Link>
+          </p>
         </div>
       </section>
     </div>

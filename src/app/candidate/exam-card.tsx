@@ -1,6 +1,6 @@
 import { CalendarClock, Timer, UserRound } from "lucide-react";
 import Link from "next/link";
-import { LocalTime } from "@/components/shared/local-time";
+import { TimeRange } from "@/components/shared/time-range";
 import { StartAttemptButton } from "@/components/shared/start-attempt-button";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export function ExamCard({ e }: { e: CandidateExam }) {
           <div className="flex items-center gap-2">
             <CalendarClock className="size-4 text-muted-foreground" aria-hidden />
             <dt className="sr-only">Window</dt>
-            <dd className="tabular"><LocalTime value={e.startsAt} /> – <LocalTime value={e.endsAt} /></dd>
+            <dd className="tabular"><TimeRange start={e.startsAt} end={e.endsAt} /></dd>
           </div>
           <div className="flex items-center gap-2">
             <Timer className="size-4 text-muted-foreground" aria-hidden />
