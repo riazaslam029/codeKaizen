@@ -23,7 +23,7 @@ Last verified: 2026-11-27. Results: 174 Vitest tests, and 68 Playwright tests sp
 | Requirement | Status | Evidence |
 | --- | --- | --- |
 | Create / edit users, assign roles | Done | `admin.spec.ts` |
-| Restrict / restore with confirm, badge, audit; cannot restrict self or the last admin | Partial | Restrict, restore and self-restriction are tested end-to-end. The last-admin rule is enforced in the service (`assertNotLastAdmin`) but **no automated test covers it**, because the dev branch has more than one admin. |
+| Restrict / restore with confirm, badge, audit; cannot restrict self or the last admin | Done | Restrict, restore and self-restriction: `restriction.spec.ts` (e2e). Last-admin rule: integration test *"the last active administrator can be neither restricted nor demoted"* (`users-exams.test.ts`). |
 | Roles & permissions matrix | Done | `/admin/roles` |
 | Platform activity (audit log) and dashboard from real data | Done | `/admin`, `/admin/activity` |
 
@@ -106,5 +106,5 @@ Last verified: 2026-11-27. Results: 174 Vitest tests, and 68 Playwright tests sp
 ## Known gaps (also in QA_REPORT.md)
 - Incident "mark as reviewed" action is not built (see C).
 - `disputes` table exists with no UI: candidates cannot raise a dispute in the app.
-- Production database needs migrations `0002` and `0003` applied before the current code is deployed.
+- Production demo data: the seeded story (WSEC-MID, WSEC-SESS, …) exists on the dev branch only.
 - No count-up animation on stat numbers; tables have search, filters and pagination but no column sorting.

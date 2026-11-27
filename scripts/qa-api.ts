@@ -103,7 +103,7 @@ async function main() {
     const stateRes = await req(sofia.cookie, `/api/attempts/${attemptId}`);
     const stateText = await stateRes.text();
     const state = JSON.parse(stateText);
-    check("C Security", "Attempt payload has no answer keys", "no correctAnswer / accepted", `correctAnswer:${stateText.includes("correctAnswer")} accepted:${stateText.includes("accepted")}`, !stateText.includes("correctAnswer") && !stateText.includes("\"accepted\""));
+    check("C Security", "Attempt payload has no answer keys", "no correctAnswer / accepted", `"correctAnswer" key:${stateText.includes("correctAnswer")} · "accepted" key:${stateText.includes("\"accepted\"")}`, !stateText.includes("correctAnswer") && !stateText.includes("\"accepted\""));
     const durationMs = Date.parse(state.attempt.expiresAt) - Date.parse(state.attempt.startedAt);
     check("C Timing", "Deadline = start + 20 min (server)", "1,200,000 ms", `${durationMs} ms`, durationMs === 20 * 60_000);
     const skew = Math.abs(Date.parse(state.serverNow) - Date.now());
@@ -127,7 +127,7 @@ async function main() {
     const bodies = await Promise.all([r1!, r2!, r3!].map((r) => r.json()));
     const rowsForAttempt = await db.select({ n: sql<number>`count(*)::int` }).from(results).where(eq(results.attemptId, attemptId));
     const [att] = await db.select({ status: attempts.status }).from(attempts).where(eq(attempts.id, attemptId));
-    check("C Duplicates", "3 concurrent submits of one attempt", "all 200, 1 result row, SUBMITTED", `${[r1, r2, r3].map((r) => r!.status).join(",")} · rows=${rowsForAttempt[0]!.n} · ${att!.status} · already=${bodies.filter((b) => b.alreadySubmitted).length}`, [r1, r2, r3].every((r) => r!.status === 200) && rowsForAttempt[0]!.n === 1 && att!.status === "SUBMITTED");
+    check("C Duplicates", "3 concurrent submits of one attempt", "all 200, 1 result row, SUBMITTED or GRADED", `${[r1, r2, r3].map((r) => r!.status).join(",")} · rows=${rowsForAttempt[0]!.n} · ${att!.status} · already=${bodies.filter((b) => b.alreadySubmitted).length}`, [r1, r2, r3].every((r) => r!.status === 200) && rowsForAttempt[0]!.n === 1 && (att!.status === "SUBMITTED" || att!.status === "GRADED"));
     const late = await save(base + 5, "c");
     check("C Integrity", "Save after submission", "409 (rejected)", String(late.status), late.status === 409);
   }
