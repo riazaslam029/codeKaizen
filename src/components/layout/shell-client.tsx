@@ -297,8 +297,8 @@ export function CommandPalette({ role }: { role: UserRole }) {
         className="hidden h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring sm:flex"
         aria-label="Open command palette (Ctrl+K)"
       >
-        <Search className="size-4" aria-hidden /> <span className="hidden lg:inline">Search or jump to…</span>
-        <kbd className="ml-2 hidden items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] lg:inline-flex">
+        <Search className="size-4" aria-hidden /> <span className="hidden whitespace-nowrap xl:inline">Search or jump to…</span>
+        <kbd className="ml-2 hidden items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] whitespace-nowrap xl:inline-flex">
           Ctrl K
         </kbd>
       </button>

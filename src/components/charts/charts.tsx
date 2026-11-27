@@ -56,7 +56,7 @@ export function PerformanceTrendChart({ data }: { data: { label: string; percent
           </defs>
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
-          <YAxis domain={[0, 100]} tickLine={false} axisLine={false} width={32} unit="%" />
+          <YAxis domain={[0, 100]} tickLine={false} axisLine={false} width={44} unit="%" />
           <ReferenceLine y={avg} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
           <ChartTooltip content={<ChartTooltipContent />} />
           <Area dataKey="percentage" type="monotone" stroke="var(--color-percentage)" strokeWidth={2} fill="url(#fill-perf)" dot={{ r: 3 }} />
@@ -122,7 +122,7 @@ export function QuestionRatesChart({ data }: { data: { label: string; correct: n
       <BarChart data={data} margin={{ left: 4, right: 8, top: 8 }} accessibilityLayer>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-        <YAxis domain={[0, 100]} tickLine={false} axisLine={false} width={32} unit="%" />
+        <YAxis domain={[0, 100]} tickLine={false} axisLine={false} width={44} unit="%" />
         <ChartTooltip content={<ChartTooltipContent />} />
         <ChartLegend content={<ChartLegendContent />} />
         <Bar dataKey="correct" fill="var(--color-correct)" radius={[4, 4, 0, 0]} />

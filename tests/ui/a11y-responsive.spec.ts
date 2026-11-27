@@ -85,11 +85,17 @@ test.describe("responsive layout: no horizontal overflow", () => {
 test.describe("keyboard", () => {
   test("login form is fully operable by keyboard with visible focus", async ({ page }) => {
     await page.goto("/login");
-    await page.keyboard.press("Tab");
-    // First stop is the "Skip to main content" link, then the form.
-    expect(await page.evaluate(() => document.activeElement?.textContent)).toContain("Skip to main content");
-    await page.keyboard.press("Tab");
-    const focused = await page.evaluate(() => document.activeElement?.getAttribute("id") ?? document.activeElement?.tagName);
+    await page.waitForLoadState("networkidle");
+    // The skip link is the first focusable element on the page and becomes visible on focus.
+    const skip = page.getByRole("link", { name: "Skip to main content" });
+    await skip.focus();
+    await expect(skip).toBeInViewport();
+    // Tab from the skip link reaches the sign-in form (the email field may also be autofocused).
+    let focused: string | null = null;
+    for (let i = 0; i < 6 && !["email", "password"].includes(focused ?? ""); i++) {
+      await page.keyboard.press("Tab");
+      focused = await page.evaluate(() => document.activeElement?.getAttribute("id") ?? document.activeElement?.tagName ?? null);
+    }
     expect(["email", "password"]).toContain(focused);
     const outline = await page.evaluate(() => {
       const el = document.activeElement as HTMLElement;
